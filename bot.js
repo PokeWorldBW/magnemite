@@ -27,7 +27,7 @@ bot.on('ready', function (evt) {
     // Sends message to Power Plant channel
     bot.sendMessage({
         to: 355137398897901568,
-        message: "Script was updated! 9" + version + ")"
+        message: "Script was updated! (" + version + ")"
     });
 });
 
