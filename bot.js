@@ -4,6 +4,8 @@ var Discord = require('discord.io');
 var logger = require('winston');
 var auth = require('./auth.json');
 
+var version = "2017.09.06a";
+
 // Configure logger settings
 logger.remove(logger.transports.Console);
 logger.add(logger.transports.Console, {
@@ -21,6 +23,12 @@ bot.on('ready', function (evt) {
     logger.info('Connected');
     logger.info('Logged in as: ');
     logger.info(bot.username + ' - (' + bot.id + ')');
+    
+    // Sends message to Power Plant channel
+    bot.sendMessage({
+        to: 355137398897901568,
+        message: "Script was updated! 9" + version + ")"
+    });
 });
 
 bot.on('message', function (user, userID, channelID, message, evt) {
