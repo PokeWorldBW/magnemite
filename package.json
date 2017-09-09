@@ -8,5 +8,11 @@
     "discord.io": "^2.5.2",
     "winston": "^2.3.1",
     "request": "2.81.0"
+  },
+  "devDependencies": {
+    "jshint": "^2.6.0"
+  },
+  "scripts": {
+    "test": "./node_modules/jshint/bin/jshint bot.js"
   }
 }
