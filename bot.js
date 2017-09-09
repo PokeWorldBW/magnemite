@@ -6,7 +6,7 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.1721",
+var version = "2017.09.09.1724",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -124,13 +124,13 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                                 }).filter(function(str) {
                                     return str != "";
                                 });
-                                bot.sendMessage({ message: data.toUpperCase() + " is not a defined word! Suggested words are **" + suggestions.join(", ") + "**", to: channelID });
+                                bot.sendMessage({ message: data.toUpperCase() + " is not a defined word! Suggested words are " + suggestions.map(function(word) { return "**" + word + "**"; }).join(", "), to: channelID });
                             } else {
                                 var definition = content.split("<dt>")[1].split("</dt>")[0].split("<vi>")[0].split("<dx>")[0];
                                 definition = stripHTML(definition);
                                 definition = definition.slice(definition.search(/[A-z]/)).split(":")[0];
                                 definition = definition.replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">");
-                                bot.sendMessage({ message: "`" + data.toUpperCase() + "`: " + definition, to: channelID });
+                                bot.sendMessage({ message: "`" + data.toUpperCase() + "` " + definition, to: channelID });
                             }
                         });
                     }
