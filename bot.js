@@ -1,4 +1,5 @@
 // documentation https://izy521.gitbooks.io/discord-io/content/
+// request https://github.com/request/request
 
 var Discord = require('discord.io');
 var logger = require('winston');
@@ -49,11 +50,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 break;
             case "web":
                 try {
-                    bot.sendMessage({
-                        message: "Website: " + data,
-                        to: channelID
-                    });
-                    request(data, function (error, response, body) {
+                    request(data, function(error, response, body) {
+                        bot.sendMessage({ message: "Website: " + data, to: channelID });
                         bot.sendMessage({ message: "Error: " + err, to: channelID });
                         bot.sendMessage({ message: "StatusCode: " + response + " - " + response.statusCode, to: channelID });
                         bot.sendMessage({ message: "Body: " + body, to: channelID });
