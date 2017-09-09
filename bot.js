@@ -6,8 +6,8 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.0037",
-    botchannel = "355137398897901568", // power plant
+var version = "2017.09.09.0059",
+    botchannel = "355137398897901568", // power_plant
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0;
@@ -99,7 +99,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 break;
             case "weather":
 				if (data) {
-                    var api = weather_apis[weather_usage % apis.length];
+                    var api = weather_apis[weather_usage % weather_apis.length];
 					var url = "http://api.wunderground.com/api/" + api + "/conditions/q";
 					data = data.split(":");
                     for (i = 0; i < data.length; i++) {
