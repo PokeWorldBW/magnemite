@@ -6,11 +6,12 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.0117",
+var version = "2017.09.09.0143",
     botchannel = "355137398897901568", // power_plant
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
-    weather_usage = 0;
+    weather_usage = 0,
+    quotes = ["While you're thinking about it, get two of them. That way you'll have a backup.", "Hello, 911? I think I just glued a Cabbage Patch doll to my penis. Her name is Addison Earlene.", "Are you a cop? Legally you have to tell me if you're a cop.", "Most people with genital herpes don't know they have it. That's because in most people it produces either no symptoms or very mild ones.", "Britney, will you accept this rose?", "They're real and they're spectacular.", "I am objectively great at f**king. The best.", "Ha ha ha! Higher, Papa, toss me higher! Wheeeeeeee! I'm Papa's little flying fairy!", "Does this smell weird to you? I don't want to eat it if it smells weird.", "Yeah I pronounce it 'pasketti'. Why? Is there another way?", "Sometimes I pretend I'm the Mayor of my kitchen and veto fish for dinner. 'Too fishy' is what I say!", "God, I've had the worst itch right at the top of my ass for like three days. Are you writing? Don't write that. We're not doing quotes yet."]; // Stolen from http://definitelyrealquotes.com/
     
 function rand(min, max) {
     if (min === max) {
@@ -91,18 +92,10 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         var data = message.slice(message.indexOf(" ") + 1);
         
         switch (command) {
-            case 'ping':
+            case "bzt": case "ping":
                 bot.sendMessage({
-                    message: 'Pong!',
+                    message: "Bz bz bzzt! " + quotes[rand(0, quotes.length)],
                     to: channelID
-                });
-                break;
-            case "web":
-                request.get(data, function(error, response, body) {
-                    if (error !== null) {
-                        bot.sendMessage({ message: "An error occurred while accessing url " + data + " : " + error, to: channelID });
-                    }
-                    bot.sendMessage({ message: "resp: " + Object.keys(response), to: channelID });
                 });
                 break;
             case "weather":
