@@ -22,8 +22,8 @@ function rand(min, max) {
 }
     
 function weatherForecast(url, channelID) {
-    request.get(url, function(error, response, body) {
-        var json = JSON.parse(body);
+    request.get(url, function(error, response, content) {
+        var json = JSON.parse(content);
         if ("error" in json.response) {
             bot.sendMessage({ message: "Error: " + json.response.error.description + ".", to: channelID });
         } else if ("results" in json.response) {
@@ -58,6 +58,11 @@ function weatherForecast(url, channelID) {
             bot.sendMessage({ message: out, to: channelID });
         }
     });
+}
+
+function stripHTML(str) {
+    var regexp = new RegExp("\\<[^\\>]*\\>", "g");
+    return str.replace(regexp, "");
 }
 
 // Configure logger settings
@@ -106,6 +111,29 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         url += ".json";
                         weatherForecast(url, channelID);
                     };
+                break;
+                case "define":
+                    // http://www.dictionaryapi.com/api/v1/references/collegiate/xml/RECURSION?key=d1726697-c258-48bf-98dd-c6fde96d2809&callback=json
+					if (data) {
+                        request.get("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/" + data.toLowerCase() + "?key=d1726697-c258-48bf-98dd-c6fde96d2809", function(error, response, content) {
+                            if (stripHTML(content) == "\r\n\n\t") {
+                                bot.sendMessage({ message: data.toUpperCase() + " is not a defined word!", to: channelID });
+                            } else if (content.indexOf("<dt>") == -1) {
+                                var suggestions = content.split("<suggestion>").map(function(word) {
+                                    return word.substring(0, word.indexOf("</suggestion>"));
+                                }).filter(function(str) {
+                                    return str != "";
+                                });
+                                bot.sendMessage({ message: data.toUpperCase() + " is not a defined word! Suggested words are " + suggestions.join(", "), to: channelID });
+                            } else {
+                                var definition = content.split("<dt>")[1].split("</dt>")[0].split("<vi>")[0].split("<dx>")[0];
+                                definition = stripHTML(definition);
+                                definition = definition.slice(definition.search(/[A-z]/)).split(":")[0];
+                                definition = definition.replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">");
+                                bot.sendMessage({ message: data.toUpperCase() + ": " + definition, to: channelID });
+                            }
+                        });
+                    }
                 break;
             }
         } 
