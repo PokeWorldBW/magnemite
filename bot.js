@@ -6,7 +6,7 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.0112",
+var version = "2017.09.09.0117",
     botchannel = "355137398897901568", // power_plant
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -20,7 +20,7 @@ function rand(min, max) {
     }
 }
     
-function weather(url, channelID) {
+function weatherForecast(url, channelID) {
     request.get(url, function(error, response, body) {
         var json = JSON.parse(body);
         if ("error" in json.response) {
@@ -28,7 +28,7 @@ function weather(url, channelID) {
         } else if ("results" in json.response) {
             weather_usage++;
             var res = json.response.results;
-            weather("http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions" + res[rand(0, res.length)].l + ".json", channelID);
+            weatherForecast("http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions" + res[rand(0, res.length)].l + ".json", channelID);
         } else {
             var weather = json.current_observation;
             var out = "Current Weather for " + weather.display_location.full;
@@ -113,7 +113,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         url += "/" + encodeURIComponent(data[i]);
                     }
                     url += ".json";
-					weather(url, channelID);
+					weatherForecast(url, channelID);
 				};
                 break;
          }
