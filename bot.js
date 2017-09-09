@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 
 var version = "2017.09.09.0208",
-    botchannel = "355137398897901568", // power_plant
+    owner = "355139126489513994", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -79,7 +79,7 @@ bot.on('ready', function (evt) {
     logger.info(bot.username + ' - (' + bot.id + ')');
     
     if (!startup) { // Prevent from sending at random times after disconnects
-        bot.sendMessage({ message: "Bz bz bzzt! " + version, to: botchannel });
+        bot.sendMessage({ message: "Bz bz bzzt! " + version, to: owner });
         startup = true;
     }
 });
