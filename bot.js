@@ -5,7 +5,7 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.06.1925",
+var version = "2017.09.08.2329",
     botchannel = "355137398897901568",
     startup = false; // power-plant
 
