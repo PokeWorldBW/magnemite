@@ -6,7 +6,7 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.0031",
+var version = "2017.09.09.0037",
     botchannel = "355137398897901568", // power plant
     startup = false;
 
@@ -29,7 +29,7 @@ bot.on('ready', function (evt) {
     logger.info(bot.username + ' - (' + bot.id + ')');
     
     if (!startup) { // Prevent from sending at random times after disconnects
-        bot.sendMessage({ message: "Script was updated! (" + version + ")", to: botchannel });
+        bot.sendMessage({ message: "Bz bz bzzt! " + version, to: botchannel });
         startup = true;
     }
 });
@@ -49,17 +49,12 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 });
                 break;
             case "web":
-                try {
-                    request.get(data, function(error, response, body) {
-                        console.log("Visiting " + data);
-                        bot.sendMessage({ message: "Website: " + data, to: channelID });
-                        bot.sendMessage({ message: "Error: " + error, to: channelID });
-                        bot.sendMessage({ message: "StatusCode: " + response + " - " + response.statusCode, to: channelID });
-                        bot.sendMessage({ message: "Body: " + body, to: channelID });
-                    });
-                } catch (err) {
-                    bot.sendMessage({ message: "You failed! (Error: " + err + ")", to: channelID });            
-                }
+                request.get(data, function(error, response, body) {
+                    if (error !== null) {
+                        bot.sendMessage({ message: "An error occurred while accessing url " + data + " : " + error, to: channelID });
+                    }
+                    bot.sendMessage({ message: "resp: " + Object.keys(response), to: channelID });
+                });
                 break;
          }
      }
