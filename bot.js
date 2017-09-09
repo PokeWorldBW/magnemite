@@ -6,7 +6,7 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.1540",
+var version = "2017.09.09.1647",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -91,33 +91,41 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         args = args.splice(1);
         var data = message.slice(message.indexOf(" ") + 1);
         
-        switch (command) {
-            case "bzt": case "ping":
-                bot.sendMessage({ message: "Bz bz bzzt! " + phrases[rand(0, phrases.length)], to: channelID });
+        if (bot.channels.hasOwnProperty(channelID) || channelID === owner) {
+            switch (command) {
+                case "bzt": case "ping":
+                    bot.sendMessage({ message: "Bz bz bzzt! " + phrases[rand(0, phrases.length)], to: channelID });
                 break;
-            case "weather":
-				if (data) {
-					var url = "http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions/q";
-					data = data.split(":");
-                    for (i = 0; i < data.length; i++) {
-                        url += "/" + encodeURIComponent(data[i]);
-                    }
-                    url += ".json";
-					weatherForecast(url, channelID);
-				};
-                break;
-            case "eval": case "evalp":
-                if (channelID === owner) {
-                    try {
-                        var res = eval(data);
-                        if (command === "evalp") {
-                            bot.sendMessage({ message: "Got from eval: " + res, to: channelID });
+                case "weather":
+                    if (data) {
+                        var url = "http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions/q";
+                        data = data.split(":");
+                        for (i = 0; i < data.length; i++) {
+                            url += "/" + encodeURIComponent(data[i]);
                         }
-                    } catch (err) {
-                        bot.sendMessage({ message: "Error in eval: " + err, to: channelID });
-                    }
-                }
+                        url += ".json";
+                        weatherForecast(url, channelID);
+                    };
                 break;
-         }
-     }
+            }
+        } else if (channelID === owner) { // owner only commands
+            switch (command) {
+                case "eval": case "evalp":
+                    if (channelID === owner) {
+                        try {
+                            var res = eval(data);
+                            if (command === "evalp") {
+                                bot.sendMessage({ message: "Got from eval: " + res, to: channelID });
+                            }
+                        } catch (err) {
+                            bot.sendMessage({ message: "Error in eval: " + err, to: channelID });
+                        }
+                    }
+                break;
+                case "game": case "setgame": case "setpresence":
+                    bot.setPresence({ game: { name: data } });
+                break;
+            }
+        }
+    }
 });
