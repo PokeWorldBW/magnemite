@@ -6,9 +6,9 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.08.2329",
-    botchannel = "355137398897901568",
-    startup = false; // power-plant
+var version = "2017.09.09.0031",
+    botchannel = "355137398897901568", // power plant
+    startup = false;
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -53,7 +53,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     request.get(data, function(error, response, body) {
                         console.log("Visiting " + data);
                         bot.sendMessage({ message: "Website: " + data, to: channelID });
-                        bot.sendMessage({ message: "Error: " + err, to: channelID });
+                        bot.sendMessage({ message: "Error: " + error, to: channelID });
                         bot.sendMessage({ message: "StatusCode: " + response + " - " + response.statusCode, to: channelID });
                         bot.sendMessage({ message: "Body: " + body, to: channelID });
                     });
