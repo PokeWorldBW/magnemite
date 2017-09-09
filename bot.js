@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 
 var version = "2017.09.09.0208",
-    owner = "355139126489513994", // DM with Yttrium
+    owner = "186356735877971968", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
