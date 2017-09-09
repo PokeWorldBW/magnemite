@@ -107,11 +107,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 				};
                 break;
             case "eval": case "evalp":
-                bot.sendMessage({ message: "channelID: " + channelID, to: owner });
-                bot.sendMessage({ message: "owner: " + owner, to: owner });
                 if (channelID === owner) {
                     try {
-                        var res = eval(commandData);
+                        var res = eval(data);
                         if (command === "evalp") {
                             bot.sendMessage({ message: "Got from eval: " + res, to: channelID });
                         }
