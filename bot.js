@@ -3,8 +3,11 @@
 var Discord = require('discord.io');
 var logger = require('winston');
 var auth = require('./auth.json');
+var request = require('request');
 
-var version = "2017.09.06a";
+var version = "2017.09.06.1925",
+    botchannel = "355137398897901568",
+    startup = false; // power-plant
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -24,27 +27,41 @@ bot.on('ready', function (evt) {
     logger.info('Logged in as: ');
     logger.info(bot.username + ' - (' + bot.id + ')');
     
-    // Sends message to Power Plant channel
-    bot.sendMessage({
-        to: "355137398897901568",
-        message: "Script was updated! (" + version + ")"
-    });
+    if (!startup) { // Prevent from sending at random times after disconnects
+        bot.sendMessage({ message: "Script was updated! (" + version + ")", to: botchannel });
+        startup = true;
+    }
 });
 
 bot.on('message', function (user, userID, channelID, message, evt) {
-    if (message.substring(0, 1) == '!') {
-        var args = message.substring(1).split(' ');
-        var cmd = args[0].toLowerCase();
-       
+    if (message.charAt(0) === '!') {
+        var args = message.substring(1).split(" ");
+        var command = args[0].toLowerCase();       
         args = args.splice(1);
-        switch (cmd) {
-            // !ping
+        var data = message.slice(message.indexOf(" ") + 1);
+        
+        switch (command) {
             case 'ping':
                 bot.sendMessage({
-                    to: channelID,
-                    message: 'Pong!'
+                    message: 'Pong!',
+                    to: channelID
                 });
-            break;
+                break;
+            case "web":
+                try {
+                    bot.sendMessage({
+                        message: "Website: " + data,
+                        to: channelID
+                    });
+                    request(data, function (error, response, body) {
+                        bot.sendMessage({ message: "Error: " + err, to: channelID });
+                        bot.sendMessage({ message: "StatusCode: " + response + " - " + response.statusCode, to: channelID });
+                        bot.sendMessage({ message: "Body: " + body, to: channelID });
+                    });
+                } catch (err) {
+                    bot.sendMessage({ message: "You failed! (Error: " + err + ")", to: channelID });            
+                }
+                break;
          }
      }
 });
