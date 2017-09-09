@@ -20,7 +20,7 @@ function weather(url, channelID) {
         } else if ("results" in json.response) {
             weather_usage++;
             var res = json.response.results;
-            weather("http://api.wunderground.com/api/" + api + "/conditions" + res[sys.rand(0, res.length)].l + ".json", channelID);
+            weather("http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions" + res[sys.rand(0, res.length)].l + ".json", channelID);
         } else {
             var weather = json.current_observation;
             var out = "Current Weather for " + weather.display_location.full;
@@ -99,8 +99,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 break;
             case "weather":
 				if (data) {
-                    var api = weather_apis[weather_usage % weather_apis.length];
-					var url = "http://api.wunderground.com/api/" + api + "/conditions/q";
+					var url = "http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions/q";
 					data = data.split(":");
                     for (i = 0; i < data.length; i++) {
                         url += "/" + encodeURIComponent(data[i]);
