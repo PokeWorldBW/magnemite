@@ -6,7 +6,7 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.0208",
+var version = "2017.09.09.1540",
     owner = "186356735877971968", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -107,6 +107,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 				};
                 break;
             case "eval": case "evalp":
+                bot.sendMessage({ message: "channelID: " + channelID, to: owner });
+                bot.sendMessage({ message: "owner: " + owner, to: owner });
                 if (channelID === owner) {
                     try {
                         var res = eval(commandData);
