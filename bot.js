@@ -50,7 +50,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 break;
             case "web":
                 try {
-                    request(data, function(error, response, body) {
+                    request.get(data, function(error, response, body) {
+                        console.log("Visiting " + data);
                         bot.sendMessage({ message: "Website: " + data, to: channelID });
                         bot.sendMessage({ message: "Error: " + err, to: channelID });
                         bot.sendMessage({ message: "StatusCode: " + response + " - " + response.statusCode, to: channelID });
