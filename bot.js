@@ -6,13 +6,14 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
+var version = "2017.09.09.0112",
     botchannel = "355137398897901568", // power_plant
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0;
     
 function rand(min, max) {
-    if (min == max) {
+    if (min === max) {
         return min;
     } else {
         return Math.floor(Math.random() * (max - min) + min);
