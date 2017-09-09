@@ -6,11 +6,18 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 
-var version = "2017.09.09.0059",
     botchannel = "355137398897901568", // power_plant
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0;
+    
+function rand(min, max) {
+    if (min == max) {
+        return min;
+    } else {
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+}
     
 function weather(url, channelID) {
     request.get(url, function(error, response, body) {
@@ -20,7 +27,7 @@ function weather(url, channelID) {
         } else if ("results" in json.response) {
             weather_usage++;
             var res = json.response.results;
-            weather("http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions" + res[sys.rand(0, res.length)].l + ".json", channelID);
+            weather("http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions" + res[rand(0, res.length)].l + ".json", channelID);
         } else {
             var weather = json.current_observation;
             var out = "Current Weather for " + weather.display_location.full;
