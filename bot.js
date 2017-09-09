@@ -93,10 +93,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         
         switch (command) {
             case "bzt": case "ping":
-                bot.sendMessage({
-                    message: "Bz bz bzzt! " + phrases[rand(0, phrases.length)],
-                    to: channelID
-                });
+                bot.sendMessage({ message: "Bz bz bzzt! " + phrases[rand(0, phrases.length)], to: channelID });
                 break;
             case "weather":
 				if (data) {
@@ -108,6 +105,18 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     url += ".json";
 					weatherForecast(url, channelID);
 				};
+                break;
+            case "eval": case "evalp":
+                if (channelID === owner) {
+                    try {
+                        var res = eval(commandData);
+                        if (command === "evalp") {
+                            bot.sendMessage({ message: "Got from eval: " + res, to: channelID });
+                        }
+                    } catch (err) {
+                        bot.sendMessage({ message: "Error in eval: " + err, to: channelID });
+                    }
+                }
                 break;
          }
      }
