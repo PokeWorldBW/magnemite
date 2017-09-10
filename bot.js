@@ -5,6 +5,7 @@ var Discord = require('discord.io');
 var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
+var parser = require('xml2json');
 
 var version = "2017.09.09.1724",
     owner = "356152143004041218", // DM with Yttrium
