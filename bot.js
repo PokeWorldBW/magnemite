@@ -153,7 +153,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                                 if (Math.random() < 0.5) {
                                     entry = entry.subsenses.random();
                                 }
-                                var defintion = entry.definitions.random();
+                                var definition = entry.definitions.random();
                                 bot.sendMessage({ message: "`" + data.toUpperCase() + "` " + definition, to: channelID });
                             }
                         );
