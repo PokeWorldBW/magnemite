@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.09.2316",
+var version = "2017.09.09.2319",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -158,7 +158,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         var u1 = Math.random(), u2 = Math.random(), trig = Math.random() < 0.5 ? Math.cos : Math.sin;
                             z = Math.sqrt(-2 * Math.log(u1)) * trig(2 * Math.PI * u2);
                         var iq = Math.floor((z * 15 + 100) * 10) / 10;
-                        if (bot.channels[channelID].name === "power_plant") {
+                        if (bot.channels.hasOwnProperty(channelID) && bot.channels[channelID].name === "power_plant") {
                             iq = Math.floor(Math.sqrt(iq) * 100) / 10 + 12 + Math.floor(Math.pow(Math.random() * 10 + Math.random(), Math.random() + 1)); // iq increase
                         }
                         if (false) { iq = Math.floor((iq - Math.pow(Math.random() * 10 + Math.random(), Math.random() + 1)) * 10) / 10; } // iq decrease
