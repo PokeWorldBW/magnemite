@@ -149,12 +149,14 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                             }, 
                             function(error, response, content) { 
                                 var json = JSON.parse(content);
-                                var entry = json.results.random().lexicalEntries.random().entries.random().senses.random();
+                                var lex_entry = json.results.random().lexicalEntries.random();
+                                var partOfSpeech = lex_entry.lexicalCategory;
+                                var entry = lex_entry.entries.random().senses.random();
                                 if (entry.hasOwnProperty("subsenses") && Math.random() < 0.5) {
                                     entry = entry.subsenses.random();
                                 }
                                 var definition = entry.definitions.random();
-                                bot.sendMessage({ message: "`" + data.toUpperCase() + "` " + definition, to: channelID });
+                                bot.sendMessage({ message: "`" + data.toUpperCase() + "` (" + partOfSpeech + ") " + definition, to: channelID });
                             }
                         );
                     }
