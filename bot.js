@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.09.2233",
+var version = "2017.09.09.2310",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -164,7 +164,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         if (false) { iq = Math.floor((iq - Math.pow(Math.random() * 10 + Math.random(), Math.random() + 1)) * 10) / 10; } // iq decrease
                         userinfo[userID].iq = iq;
                     }
-                    client.network().sendChanMessage(channel, playname + "'s IQ is " + userinfo[userID].iq + ".");
+                    bot.sendMessage({ message: "@" + user + "#" + bot.users[userID].discriminator + "'s IQ is " + userinfo[userID].iq + ".", to: channelID });
                 break;
             }
         } 
