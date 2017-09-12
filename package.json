@@ -6,8 +6,10 @@
   "author": "Yttrium",
   "dependencies": {
     "discord.io": "^2.5.2",
-    "winston": "^2.3.1",
+    "ejs": "^2.5.7",
+    "express": "^4.15.4",
     "request": "2.81.0",
+    "winston": "^2.3.1",
     "xml2json": "0.11.0"
   }
 }

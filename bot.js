@@ -290,3 +290,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         }
     }
 });
+
+// pings server every 15 minutes to prevent dynos from sleeping
+setInterval(() => {
+  request.get("https://magnemite.herokuapp.com");
+}, 900000);
