@@ -7,7 +7,6 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.11.2051",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -215,6 +214,26 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         info.movie = titles.random();
                     }
                     bot.sendMessage({ message: "<@" + userID + "> is " + info.actor + " starring in the movie \"" + info.movie + "\"", to: channelID });
+                break;
+                case "animal":
+                    if (!userinfo.hasOwnProperty(userID)) {
+                        userinfo[userID] = {};
+                    }
+                    var info = userinfo[userID];
+                    if (!info.hasOwnProperty("animal")) {
+                        info.animal = colors.random() + " " + animals.random();
+                    }
+                    bot.sendMessage(message: "<@" + userID + "> is a" + (["A", "E", "I", "O", "U"].indexOf(info.animal.charAt(0).toUpperCase()) !== -1 ? "n " : " ") + info.animal + ".", to: channelID);
+                break;
+                case "job":
+                    if (!userinfo.hasOwnProperty(userID)) {
+                        userinfo[userID] = {};
+                    }
+                    var info = userinfo[userID];
+                    if (!info.hasOwnProperty("job")) {
+                        info.job = adjectives.random() + " " + jobs.random();
+                    }
+                    bot.sendMessage({ message: "<@" + userID + "> is a" + (["a", "e", "i", "o", "u"].indexOf(jinfo.job.charAt(0)) !== -1 ? "n " : " ") + info.job + ".", to: channelID });
                 break;
             }
         } 
