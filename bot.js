@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.11.2140",
+var version = "2017.09.11.2146",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -244,7 +244,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                             data = data.substring(1);
                         }
                         request.get(
-                            "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=" + encodeURIComponent(commandData),
+                            "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=" + encodeURIComponent(data),
                             function(error, response, content) {
                                 var result = JSON.parse(content).query.pages;
                                 var key = Object.keys(result)[0];
