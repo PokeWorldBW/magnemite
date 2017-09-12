@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.11.2042",
+var version = "2017.09.11.2046",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -148,7 +148,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                                     var lex_entry = json.results.random().lexicalEntries.random();
                                     var partOfSpeech = lex_entry.lexicalCategory;
                                     var entry = lex_entry.entries.random();
-                                    if (!entry.hasOwnProperty("sense")) {
+                                    if (!entry.hasOwnProperty("senses")) {
                                         // Use old API because apparently the new one doesn't have definitions for certain words
                                         request.get("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/" + data.toLowerCase() + "?key=d1726697-c258-48bf-98dd-c6fde96d2809", function(error, response, content) {
                                             if (stripHTML(content) == "\r\n\n\t") {
