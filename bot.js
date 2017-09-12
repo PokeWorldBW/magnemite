@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.12.1646",
+var version = "2017.09.12.1652",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -25,12 +25,12 @@ var commandInfo = [
     "**MAGNEMITE COMMANDS**",
     "Use a command by typing `!` followed by the command you want to use and any info you need to include!",
     "",
-    "actor` (*also*: `actress`) - gives you a random actor and movie name",
+    "`actor` (*also*: `actress`) - gives you a random actor and movie name",
     "`animal` - gives you a random animal",
     "`bzt` - makes Magnemite say a random message",
     "`commands` - to know the commands",
     "`define` - gets the definition of a certain word",
-    "`iq` - randomly generates a number for your IQ",
+    "`iq` - generates your IQ",
     "`job` - gives you a random job",
     "`weather` - tells you the weather of a certain location",
     "`wiki` - looks something up on Wikipedia",
