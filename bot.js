@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.11.2121",
+var version = "2017.09.11.2126",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -224,7 +224,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     if (!info.hasOwnProperty("animal")) {
                         info.animal = colors.random() + " " + animals.random();
                     }
-                    bot.sendMessage(message: "<@" + userID + "> is a" + (["A", "E", "I", "O", "U"].indexOf(info.animal.charAt(0).toUpperCase()) !== -1 ? "n " : " ") + info.animal + ".", to: channelID);
+                    bot.sendMessage({ message: "<@" + userID + "> is a" + (["A", "E", "I", "O", "U"].indexOf(info.animal.charAt(0).toUpperCase()) !== -1 ? "n " : " ") + info.animal + ".", to: channelID });
                 break;
                 case "job":
                     if (!userinfo.hasOwnProperty(userID)) {
