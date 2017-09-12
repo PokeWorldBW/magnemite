@@ -266,7 +266,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     }
                 break;
                 case "commands":
-                    bot.sendMessage({ message: "Visit https://magnemite.herokuapp.com to see a list of commands!", to: channelID });
+                    bot.sendMessage({ message: "Visit http://magnemite.herokuapp.com to see a list of commands!", to: channelID });
                 break;
             }
         } 
