@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.12.1628",
+var version = "2017.09.12.1643",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -115,7 +115,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         var args = message.substring(1).split(" ");
         var command = args[0].toLowerCase();       
         args = args.splice(1);
-        var data = message.slice(message.indexOf(" ") + 1);
+        var data = message.indexOf(" ") !== -1 ? message.slice(message.indexOf(" ") + 1) : "";
         
         if (bot.channels.hasOwnProperty(channelID) || channelID === owner) {
             switch (command) {
@@ -266,7 +266,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     }
                 break;
                 case "commands":
-                    bot.sendMessage({ message: "Visit http://magnemite.herokuapp.com to see a list of commands!", to: channelID });
+                    bot.sendMessage({ message: "**MAGNEMITE COMMANDS**\nUse a command by typing `!` followed by the command you want to use and any info you need to include!\n\n`actor` (*also*: `actress`) - gives you a random actor and movie name\n`animal` - gives you a random animal\n`bzt` - makes Magnemite say a random message\n`commands` - to know the commands\n`define` - gets the definition of a certain word\n`iq` - randomly generates a number for your IQ\n`job` - gives you a random job\n`weather` - tells you the weather of a certain location\n\n`wiki` - looks something up on Wikipedia\n`wikipedia` - same as `wiki` but capitalization is not automatically formatted", to: userID });
                 break;
             }
         } 
