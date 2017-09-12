@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.11.2129",
+var version = "2017.09.11.2140",
     owner = "356152143004041218", // DM with Yttrium
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
@@ -235,6 +235,36 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         info.job = adjectives.random() + " " + jobs.random();
                     }
                     bot.sendMessage({ message: "<@" + userID + "> is a" + (["a", "e", "i", "o", "u"].indexOf(info.job.charAt(0)) !== -1 ? "n " : " ") + info.job + ".", to: channelID });
+                break;
+                case "wiki": case "wikipedia":
+                    if (data) {
+                        if (data[0] !== "~") {
+                            data = data.replace(/\b([A-z]+)/g, function(match) { return match[0].toUpperCase() + match.substring(1).toLowerCase(); });
+                        } else {
+                            data = data.substring(1);
+                        }
+                        request.get(
+                            "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=" + encodeURIComponent(commandData),
+                            function(error, response, content) {
+                                var result = JSON.parse(content).query.pages;
+                                var key = Object.keys(result)[0];
+                                if (key === "-1") {
+                                    bot.sendMessage({ message: "**" + data.toUpperCase() + "** could not be found!!", to: channelID });
+                                } else {
+                                    var info = result[key].extract;
+                                    var tokens = info.split("\n");
+                                    if (tokens[0][tokens[0].length - 1] != ":") {
+                                        info = tokens[0];
+                                    }
+                                    if (info === "") {
+                                        bot.sendMessage({ message: "**" + data.toUpperCase() + "** could not be found!!", to: channelID });
+                                    } else {
+                                        bot.sendMessage({ message: "`" + data.toUpperCase() + "` " + info, to: channelID });
+                                    }
+                                }                               
+                            }
+                        );
+                    }
                 break;
             }
         } 
