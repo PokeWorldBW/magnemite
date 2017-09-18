@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.17.2252",
+var version = "2017.09.17.2256",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -141,7 +141,7 @@ bot.on('disconnect', function(msg, code) {
     bot.sendMessage({ message: "Bz bz bzzt! Successfully reconnected! (Code: " + code + ")", to: owner });
 });
 
-bot.on('message', function (user, userID, channelID, message, evt) {
+bot.on('message', function (user, userID, channelID, message, event) {
     if (message.charAt(0) === '!') {
         var args = message.substring(1).split(" ");
         var command = args[0].toLowerCase();       
