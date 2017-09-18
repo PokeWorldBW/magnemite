@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.17.2256",
+var version = "2017.09.17.2259",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -306,8 +306,13 @@ bot.on('message', function (user, userID, channelID, message, event) {
                 break;
                 case "say":
                     if (data) {
-                        bot.deleteMessage({ channelID: channelID, messageID: event.d.id }, function (error) { bot.sendMessage({ message: "Error deleting message: " + error, to: channelID }); });
-                        bot.sendMessage({ message: message, to: channelID });
+                        bot.deleteMessage({ channelID: channelID, messageID: event.d.id }, 
+                            function(error) { 
+                                if (error !== null) { 
+                                    bot.sendMessage({ message: "Error deleting message: " + error, to: channelID }); 
+                                } 
+                            });
+                        bot.sendMessage({ message: data, to: channelID });
                     }
                 break;
             }
