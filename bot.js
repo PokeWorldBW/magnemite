@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.23.1732",
+var version = "2017.09.23.1737",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -343,7 +343,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                 break;
             }
         }
-    } else if (pos !== -1 && message.substring(0, pos) === "@Magnemite") {
+    } else if (pos !== -1 && message.substring(0, pos) === "<@" + bot.id + ">) {
         bot.sendMessage({ message: "message received", to: channelID});
     }
 });
