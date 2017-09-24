@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.23.2149",
+var version = "2017.09.23.2218",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -349,7 +349,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                            return src.indexOf(s) !== -1; 
                         });
                         if (matches.length > 0) {
-                            source = random(matches);
+                            source = s === "time" ? "time" : random(matches); // Time also picks up New York Times
                         } else {
                             bot.sendMessage({ message: "Source **" + data.toUpperCase() + "** not found! Sources I can access are:\n```\n" + all_sources + "\n```", to: channelID });
                             return;
@@ -359,7 +359,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         "https://newsapi.org/v1/articles?source=" + source + "&apiKey=33adabff3aa447ef820b69a4907f5245",
                         function(error, response, content) {
                             var result = JSON.parse(content);
-                            var articles = shuffle(result.articles).slice(0, 3);
+                            var articles = shuffle(result.articles).slice(0,  source === "associated-press" ? 1 : 3); // Associated Press article descriptions are really long...
                             var out = ["```css", "#" + source, ""];
                             for (var i = 0; i < articles.length; i++) {
                                 var article = articles[i];
