@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.23.2136",
+var version = "2017.09.23.2149",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -360,8 +360,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         function(error, response, content) {
                             var result = JSON.parse(content);
                             var articles = shuffle(result.articles).slice(0, 3);
-                            var name = source === "reddit-r-all" ? "Reddit" : source.replace(/-/g, " ").replace(/\b[a-z]/g, function(word) { return word.charAt(0).toUpperCase() + word.slice(1); }).replace(/Bbc|Cnbc|Cnn|Espn|Ign|Mtv|Nfl|Usa/, function(acronym) { return acronym.toUpperCase(); });
-                            var out = ["**" + name + "**", "```css"];
+                            var out = ["```css", "#" + source];
                             for (var i = 0; i < articles.length; i++) {
                                 var article = articles[i];
                                 out.push(article.title);
