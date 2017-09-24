@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.23.2100",
+var version = "2017.09.23.2108",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -65,7 +65,7 @@ function random(array) {
 
 // stolen from https://github.com/po-devs/po-server-goodies/blob/master/scripts.js
 function shuffle(array) {
-    if (!Array.isArray(array) {
+    if (!Array.isArray(array)) {
         return null;
     } else {
         for (var i = array.length - 1; i > 0; i--) {
