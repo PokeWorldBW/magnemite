@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.23.2108",
+var version = "2017.09.23.2112",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -76,6 +76,7 @@ function shuffle(array) {
         }
         return array;
     }
+}
     
 function weatherForecast(url, channelID) {
     request.get(url, function(error, response, content) {
@@ -349,11 +350,11 @@ bot.on('message', function (user, userID, channelID, message, event) {
                            return src.indexOf(s) !== -1; 
                         });
                         if (matches.length > 0) {
-                            source = matches[0];
+                            source = random(matches);
                         } else {
                             bot.sendMessage({ message: "Source **" + data.toUpperCase() + "** not found! Sources I can access are:\n```\n" + all_sources + "\n```", to: channelID });
                         }
-                    }                        
+                    }       
                     request.get(
                         "https://newsapi.org/v1/articles?source=" + source + "&apiKey=33adabff3aa447ef820b69a4907f5245",
                         function(error, response, content) {
