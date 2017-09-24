@@ -7,7 +7,7 @@ var auth = require('./auth.json');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.09.23.1756",
+var version = "2017.09.23.2100",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -22,7 +22,9 @@ var version = "2017.09.23.1756",
     noun = ["Dream","Dreamer","Dreams","Waves","Sword","Kiss","Sex","Lover","Slave","Slaves","Pleasure","Servant","Servants","Snake","Soul","Touch","Men","Women","Gift","Scent","Ice","Snow","Night","Silk","Secret","Secrets","Game","Fire","Flame","Flames","Husband","Wife","Man","Woman","Boy","Girl","Truth","Edge","Boyfriend","Girlfriend","Body","Captive","Male","Wave","Predator","Female","Healer","Trainer","Teacher","Hunter","Obsession","Hustler","Consort","Dream", "Dreamer", "Dreams","Rainbow","Dreaming","Flight","Flying","Soaring","Wings","Mist","Sky","Wind","Winter","Misty","River","Door","Gate","Cloud","Fairy","Dragon","End","Blade","Beginning","Tale","Tales","Emperor","Prince","Princess","Willow","Birch","Petals","Destiny","Theft","Thief","Legend","Prophecy","Spark","Sparks","Stream","Streams","Waves","Sword","Darkness","Swords","Silence","Kiss","Butterfly","Shadow","Ring","Rings","Emerald","Storm","Storms","Mists","World","Worlds","Alien","Lord","Lords","Ship","Ships","Star","Stars","Force","Visions","Vision","Magic","Wizards","Wizard","Heart","Heat","Twins","Twilight","Moon","Moons","Planet","Shores","Pirates","Courage","Time","Academy","School","Rose","Roses","Stone","Stones","Sorcerer","Shard","Shards","Slave","Slaves","Servant","Servants","Serpent","Serpents","Snake","Soul","Souls","Savior","Spirit","Spirits","Voyage","Voyages","Voyager","Voyagers","Return","Legacy","Birth","Healer","Healing","Year","Years","Death","Dying","Luck","Elves","Tears","Touch","Son","Sons","Child","Children","Illusion","Sliver","Destruction","Crying","Weeping","Gift","Word","Words","Thought","Thoughts","Scent","Ice","Snow","Night","Silk","Guardian","Angel","Angels","Secret","Secrets","Search","Eye","Eyes","Danger","Game","Fire","Flame","Flames","Bride","Husband","Wife","Time","Flower","Flowers","Light","Lights","Door","Doors","Window","Windows","Bridge","Bridges","Ashes","Memory","Thorn","Thorns","Name","Names","Future","Past","History","Something","Nothing","Someone","Nobody","Person","Man","Woman","Boy","Girl","Way","Mage","Witch","Witches","Lover","Tower","Valley","Abyss","Hunter","Truth","Edge"],
     adjective = ["Lost","Only","Last","First","Third","Sacred","Bold","Lovely","Final","Missing","Shadowy","Seventh","Dwindling","Missing","Absent","Vacant","Cold","Hot","Burning","Forgotten","Weeping","Dying","Lonely","Silent","Laughing","Whispering","Forgotten","Smooth","Silken","Rough","Frozen","Wild","Trembling","Fallen","Ragged","Broken","Cracked","Splintered","Slithering","Silky","Wet","Magnificent","Luscious","Swollen","Erect","Bare","Naked","Stripped","Captured","Stolen","Sucking","Licking","Growing","Kissing","Green","Red","Blue","Azure","Rising","Falling","Elemental","Bound","Prized","Obsessed","Unwilling","Hard","Eager","Ravaged","Sleeping","Wanton","Professional","Willing","Devoted","Misty","Lost","Only","Last","First","Final","Missing","Shadowy","Seventh","Dark","Darkest","Silver","Silvery","Living","Black","White","Hidden","Entwined","Invisible","Next","Seventh","Red","Green","Blue","Purple","Grey","Bloody","Emerald","Diamond","Frozen","Sharp","Delicious","Dangerous","Deep","Twinkling","Dwindling","Missing","Absent","Vacant","Cold","Hot","Burning","Forgotten","Some","No","All","Every","Each","Which","What","Playful","Silent","Weeping","Dying","Lonely","Silent","Laughing","Whispering","Forgotten","Smooth","Silken","Rough","Frozen","Wild","Trembling","Fallen","Ragged","Broken","Cracked","Splintered"],
     magic8ball = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes, definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", "Reply hazy try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful.", "Reply hazy try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."],
-    responses = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes, definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", "Reply hazy try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful.", "Reply hazy try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Very doubtful.", "Absolutely.", "Answer unclear, ask later.", "Cannot foretell now.", "Can't say now.", "Chances aren't good.", "Consult me later.", "Don't bet on it.", "Focus and ask again.", "Indications say yes.", "Looks like yes.", "No.", "No doubt about it.", "Positively.", "Prospect good.", "So it shall be.", "The stars say no.", "Unlikely.", "Very likely.", "Yes.", "You can count on it.", "Bear market ahead.", "Bull market ahead.", "Buy now.", "Buy pork bellies.", "Buy real estate.", "Buy t-bills.", "Change brokers.", "Don't buy on margin.", "Go for it.", "One word: plastics.", "Out to lunch.", "Pay off loans first.", "Ride it out.", "Sell half now.", "Sell now.", "Sell real estate.", "Start own business.", "Tech stocks hot.", "Think precious metals.", "Unclear, ask again.", "I have a 24 hour flu.", "I was abducted by aliens.", "I have amnesia.", "I’m having car trouble.", "Full moon.", "Huh?", "I was mugged.", "It's in the mail.", "It's not my job.", "I've got a headache.", "I have jury duty.", "Kryptonite.", "Mexican food.", "My dog ate it.", "My fish died.", "No hablo ingleses.", "Oprah.", "The voices told me to.", "Traffic was bad.", "What memo?", "At least I love you.", "Brilliant idea!", "Half-full.", "Have you lost weight?", "It can't be all that bad.", "Look on the bright side.", "Nice job!", "Nice outfit!", "Nice try!", "People like you.", "Pure genius!", "That's o.k..", "The sky's the limit.", "Who says you're stupid?", "You can do it!", "You look marvelous.", "Your breath is so minty.", "You're 100% fun!", "You're a winner!", "You're good enough...", "As if.", "Ask me if i care.", "Dumb question, ask another.", "Forget about it.", "Get a clue.", "In your dreams.", "Not.", "Not a chance.", "Obviously.", "Oh please.", "Sure.", "That's ridiculous.", "Well maybe.", "What do you think?", "Whatever.", "Who cares?", "Yeah and I'm the pope.", "Yeah right.", "You wish.", "You've got to be kidding....", "Caught stealing.", "Double.", "Flyout to center.", "Flyout to left.", "Foul out.", "Ground-out to 2nd.", "Ground-out to 3rd.", "Ground-out to short.", "Hit by pitch.", "Home run!", "Pop out.", "Reach on error.", "Single to left.", "Single to right.", "Stolen base.", "Strike-out looking.", "Strike-out swinging.", "Triple.", "Walk.", "Wild pitch - runners advance.", "Par.", "Birdie (1 under par).", "Eagle (2 under par).", "Double eagle (3 under par).", "Hole in one!", "Bogey (1 over par).", "Double bogey (2 over par).", "Triple bogey (3 over par).", "Lost ball - 6 stroke hole.", "7 stroke hole total.", "​8 stroke hole total.", "Mulligan - do-over.", "Whiff - swing again.", "是的.", "毫無疑問.", "絕對是的.", "星象顯示否定.", "應該是.", "星象顯示肯定.", "不可能.", "十分肯定.", "答案不明重新問.", "不要心存希望.", "看起來有像是.", "機會並不好.", "集中精神重新問.", "現在不能說.", "前景良好.", "不.", "很可能.", "現在無法預知.", "稍後諮詢.", "可以指望它.", "да.", "это не так.", "возможно.", "не случайно.", "и.", "возможно.", "Sí.", "No lo es.", "Es posible.", "Ninguna posibilidad.", "Y tal vez.", "True.", "False.", "Nobody cared before, nobody cares now."];
+    responses = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes, definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", "Reply hazy try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful.", "Reply hazy try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Very doubtful.", "Absolutely.", "Answer unclear, ask later.", "Cannot foretell now.", "Can't say now.", "Chances aren't good.", "Consult me later.", "Don't bet on it.", "Focus and ask again.", "Indications say yes.", "Looks like yes.", "No.", "No doubt about it.", "Positively.", "Prospect good.", "So it shall be.", "The stars say no.", "Unlikely.", "Very likely.", "Yes.", "You can count on it.", "Bear market ahead.", "Bull market ahead.", "Buy now.", "Buy pork bellies.", "Buy real estate.", "Buy t-bills.", "Change brokers.", "Don't buy on margin.", "Go for it.", "One word: plastics.", "Out to lunch.", "Pay off loans first.", "Ride it out.", "Sell half now.", "Sell now.", "Sell real estate.", "Start own business.", "Tech stocks hot.", "Think precious metals.", "Unclear, ask again.", "I have a 24 hour flu.", "I was abducted by aliens.", "I have amnesia.", "I’m having car trouble.", "Full moon.", "Huh?", "I was mugged.", "It's in the mail.", "It's not my job.", "I've got a headache.", "I have jury duty.", "Kryptonite.", "Mexican food.", "My dog ate it.", "My fish died.", "No hablo ingleses.", "Oprah.", "The voices told me to.", "Traffic was bad.", "What memo?", "At least I love you.", "Brilliant idea!", "Half-full.", "Have you lost weight?", "It can't be all that bad.", "Look on the bright side.", "Nice job!", "Nice outfit!", "Nice try!", "People like you.", "Pure genius!", "That's o.k..", "The sky's the limit.", "Who says you're stupid?", "You can do it!", "You look marvelous.", "Your breath is so minty.", "You're 100% fun!", "You're a winner!", "You're good enough...", "As if.", "Ask me if i care.", "Dumb question, ask another.", "Forget about it.", "Get a clue.", "In your dreams.", "Not.", "Not a chance.", "Obviously.", "Oh please.", "Sure.", "That's ridiculous.", "Well maybe.", "What do you think?", "Whatever.", "Who cares?", "Yeah and I'm the pope.", "Yeah right.", "You wish.", "You've got to be kidding....", "Caught stealing.", "Double.", "Flyout to center.", "Flyout to left.", "Foul out.", "Ground-out to 2nd.", "Ground-out to 3rd.", "Ground-out to short.", "Hit by pitch.", "Home run!", "Pop out.", "Reach on error.", "Single to left.", "Single to right.", "Stolen base.", "Strike-out looking.", "Strike-out swinging.", "Triple.", "Walk.", "Wild pitch - runners advance.", "Par.", "Birdie (1 under par).", "Eagle (2 under par).", "Double eagle (3 under par).", "Hole in one!", "Bogey (1 over par).", "Double bogey (2 over par).", "Triple bogey (3 over par).", "Lost ball - 6 stroke hole.", "7 stroke hole total.", "​8 stroke hole total.", "Mulligan - do-over.", "Whiff - swing again.", "是的.", "毫無疑問.", "絕對是的.", "星象顯示否定.", "應該是.", "星象顯示肯定.", "不可能.", "十分肯定.", "答案不明重新問.", "不要心存希望.", "看起來有像是.", "機會並不好.", "集中精神重新問.", "現在不能說.", "前景良好.", "不.", "很可能.", "現在無法預知.", "稍後諮詢.", "可以指望它.", "да.", "это не так.", "возможно.", "не случайно.", "и.", "возможно.", "Sí.", "No lo es.", "Es posible.", "Ninguna posibilidad.", "Y tal vez.", "True.", "False.", "Nobody cared before, nobody cares now."]
+    sources = ["al-jazeera-english", "associated-press", "bbc-news", "bloomberg", "breitbart-news", "business-insider", "buzzfeed", "cnbc", "cnn", "espn", "fortune", "fox-sports", "google-news", "ign", "mashable", "mtv-news", "national-geographic", "newsweek", "new-york-magazine", "nfl-news", "reddit-r-all", "reuters", "the-economist", "the-huffington-post", "the-new-york-times", "the-wall-street-journal", "the-washington-post", "time", "usa-today"],
+    all_sources = "Al Jazeera, Associated Press, BBC, Bloomberg, Breitbart, Business Insider, BuzzFeed, CNBC, CNN, ESPN, Fortune, Fox Sports, Google News, IGN, Mashable, MTV, National Geographic, Newsweek, New York Magazine, NFL News, Reddit, Reuters, Economist, Huffington Post, New York Times, Wall Street Journal, Washington Post, Time, and USA Today";
 
 var commandInfo = [
     "**MAGNEMITE COMMANDS**",
@@ -36,6 +38,7 @@ var commandInfo = [
     "`define` - gets the definition of some word",
     "`iq` - generates your IQ",
     "`job` - gives you a random job",
+    "`news` - gets headlines from a news website",
     "`say` - tells Magnemite what to say",
     "`weather` - tells you the weather in some location",
     "`wiki` - looks something up on Wikipedia",
@@ -52,14 +55,27 @@ function rand(min, max) {
     }
 }
 
-// stolen from https://github.com/po-devs/po-server-goodies/blob/master/scripts.js
-Object.defineProperty(Array.prototype, "random", {
-    configurable: true,
-    enumerable: false,
-    value: function () {
-        return this[rand(0, this.length)];
+function random(array) {
+    if (!Array.isArray(array)) {
+        return null;
+    } else {
+        return array[rand(0, array.length)];
     }
-});
+}
+
+// stolen from https://github.com/po-devs/po-server-goodies/blob/master/scripts.js
+function shuffle(array) {
+    if (!Array.isArray(array) {
+        return null;
+    } else {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+        return array;
+    }
     
 function weatherForecast(url, channelID) {
     request.get(url, function(error, response, content) {
@@ -69,7 +85,7 @@ function weatherForecast(url, channelID) {
         } else if ("results" in json.response) {
             weather_usage++;
             var res = json.response.results;
-            weatherForecast("http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions" + res.random().l + ".json", channelID);
+            weatherForecast("http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions" + random(res).l + ".json", channelID);
         } else {
             var weather = json.current_observation;
             var out = "Current Weather for " + weather.display_location.full;
@@ -155,7 +171,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
         if (bot.channels.hasOwnProperty(channelID) || channelID === owner) {
             switch (command) {
                 case "bzt": case "ping":
-                    bot.sendMessage({ message: "Bz bz bzzt! " + phrases.random(), to: channelID });
+                    bot.sendMessage({ message: "Bz bz bzzt! " + random(phrases), to: channelID });
                 break;
                 case "weather":
                     if (data) {
@@ -181,9 +197,9 @@ bot.on('message', function (user, userID, channelID, message, event) {
                             function(error, response, content) {
                                 try {
                                     var json = JSON.parse(content);
-                                    var lex_entry = json.results.random().lexicalEntries.random();
+                                    var lex_entry = random(random(json.results).lexicalEntries);
                                     var partOfSpeech = lex_entry.lexicalCategory;
-                                    var entry = lex_entry.entries.random();
+                                    var entry = random(lex_entry.entries);
                                     if (!entry.hasOwnProperty("senses")) {
                                         // Use old API because apparently the new one doesn't have definitions for certain words
                                         request.get("http://www.dictionaryapi.com/api/v1/references/collegiate/xml/" + data.toLowerCase() + "?key=d1726697-c258-48bf-98dd-c6fde96d2809", function(error, response, content) {
@@ -206,11 +222,11 @@ bot.on('message', function (user, userID, channelID, message, event) {
                                             }
                                         });
                                     } else {
-                                        var sense = entry.senses.random();
+                                        var sense = random(entry.senses);
                                         if (sense.hasOwnProperty("subsenses") && Math.random() < 0.5) {
-                                            sense = sense.subsenses.random();
+                                            sense = random(sense.subsenses);
                                         }
-                                        var definition = sense.definitions.random();
+                                        var definition = random(sense.definitions);
                                         bot.sendMessage({ message: "`" + data.toUpperCase() + "` [*" + partOfSpeech.toLowerCase() + "*] " + definition, to: channelID });
                                     }
                                 } catch (err) {
@@ -234,7 +250,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         }
                         if (false) { iq = Math.floor((iq - Math.pow(Math.random() * 10 + Math.random(), Math.random() + 1)) * 10) / 10; } // iq decrease
                         if (userID === bot.id) {
-                            iq *= Math.pow(10, Math.random());
+                            iq *= Math.floor(Math.pow(10, 1 + Math.random())) / 10;
                         }
                         userinfo[userID].iq = iq;
                     }
@@ -246,12 +262,12 @@ bot.on('message', function (user, userID, channelID, message, event) {
                     }
                     var info = userinfo[userID];
                     if (!info.hasOwnProperty("actor") || !info.hasOwnProperty("movie")) {
-                        var adj = adjective.random();
-                        var n1 = noun.random();
-                        var n2 = noun.random();
+                        var adj = random(adjective);
+                        var n1 = random(noun);
+                        var n2 = random(noun);
                         var titles = [adj + " " + n1, "The " + adj + " " + n1, n1 + " of " + n2, "The " + n1 + "'s " + n2, "The " + n1 + " of the " + n2, n1 + " in the " + n2];
-                        info.actor = actors.random();
-                        info.movie = titles.random();
+                        info.actor = random(actors);
+                        info.movie = random(titles);
                     }
                     bot.sendMessage({ message: "<@" + userID + "> is " + info.actor + " starring in the movie \"" + info.movie + "\"", to: channelID });
                 break;
@@ -261,7 +277,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                     }
                     var info = userinfo[userID];
                     if (!info.hasOwnProperty("animal")) {
-                        info.animal = colors.random() + " " + animals.random();
+                        info.animal = random(colors) + " " + random(animals);
                     }
                     bot.sendMessage({ message: "<@" + userID + "> is a" + (["A", "E", "I", "O", "U"].indexOf(info.animal.charAt(0).toUpperCase()) !== -1 ? "n " : " ") + info.animal + ".", to: channelID });
                 break;
@@ -271,7 +287,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                     }
                     var info = userinfo[userID];
                     if (!info.hasOwnProperty("job")) {
-                        info.job = adjectives.random() + " " + jobs.random();
+                        info.job = random(adjectives) + " " + random(jobs);
                     }
                     bot.sendMessage({ message: "<@" + userID + "> is a" + (["a", "e", "i", "o", "u"].indexOf(info.job.charAt(0)) !== -1 ? "n " : " ") + info.job + ".", to: channelID });
                 break;
@@ -308,7 +324,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                 break;
                 case "8ball":
                     if (data) {
-                        bot.sendMessage({ message: magic8ball.random(), to: channelID });
+                        bot.sendMessage({ message: random(magic8ball), to: channelID });
                     }
                 break;
                 case "say":
@@ -324,6 +340,36 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         }
                         bot.sendMessage({ message: data, to: channelID });
                     }
+                break;
+                case "news":
+                    var source = random(sources);
+                    if (data) {
+                        var s = data.toLowerCase().replace(/ /g, "-");
+                        var matches = sources.filter(function(src) {
+                           return src.indexOf(s) !== -1; 
+                        });
+                        if (matches.length > 0) {
+                            source = matches[0];
+                        } else {
+                            bot.sendMessage({ message: "Source **" + data.toUpperCase() + "** not found! Sources I can access are:\n```\n" + all_sources + "\n```", to: channelID });
+                        }
+                    }                        
+                    request.get(
+                        "https://newsapi.org/v1/articles?source=" + source + "&apiKey=33adabff3aa447ef820b69a4907f5245",
+                        function(error, response, content) {
+                            var result = JSON.parse(content);
+                            var articles = shuffle(result.articles).slice(0, 4);
+                            var out = ["```css"];
+                            for (var i = 0; i < articles.length; i++) {
+                                var article = articles[i];
+                                out.push(article.title);
+                                out.push("[" + article.description + "]");
+                                out.push("");
+                            }
+                            out.push("```");
+                            bot.sendMessage({ message: out.join("\n"), to: channelID });
+                        }
+                    );
                 break;
             }
         } 
@@ -350,7 +396,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
             }
         }
     } else if (pos !== -1 && message.substring(0, pos) === "<@" + bot.id + ">") { // Responds to mentions
-        bot.sendMessage({ message: responses.random(), to: channelID });
+        bot.sendMessage({ message: random(responses), to: channelID });
     }
 });
 
