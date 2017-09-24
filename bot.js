@@ -360,7 +360,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         function(error, response, content) {
                             var result = JSON.parse(content);
                             var articles = shuffle(result.articles).slice(0, 3);
-                            var out = ["```css", "#" + source];
+                            var out = ["```css", "#" + source, ""];
                             for (var i = 0; i < articles.length; i++) {
                                 var article = articles[i];
                                 out.push(article.title);
