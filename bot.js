@@ -359,8 +359,8 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         "https://newsapi.org/v1/articles?source=" + source + "&apiKey=33adabff3aa447ef820b69a4907f5245",
                         function(error, response, content) {
                             var result = JSON.parse(content);
-                            var articles = shuffle(result.articles).slice(0, 4);
-                            var name = source === "reddit-r-all" ? "Reddit" : source.replace(/-/g, " ").replace(/\b[a-z]/g, function(word) { return word.charAt(0).toUpperCase() + word.slice(1); });
+                            var articles = shuffle(result.articles).slice(0, 3);
+                            var name = source === "reddit-r-all" ? "Reddit" : source.replace(/-/g, " ").replace(/\b[a-z]/g, function(word) { return word.charAt(0).toUpperCase() + word.slice(1); }).replace(/Bbc|Cnbc|Cnn|Espn|Ign|Mtv|Nfl|Usa/, function(acronym) { return acronym.toUpperCase(); });
                             var out = ["**" + name + "**", "```css"];
                             for (var i = 0; i < articles.length; i++) {
                                 var article = articles[i];
