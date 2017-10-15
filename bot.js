@@ -1,6 +1,9 @@
 // documentation https://izy521.gitbooks.io/discord-io/content/
 // request https://github.com/request/request
 
+// https://stackoverflow.com/questions/5306729/how-do-markov-chain-chatbots-work/5307230#5307230
+// https://walterhickey.tumblr.com/post/116609445662/twitter-markov-bot-part-1-scraping-the-words
+
 var Discord = require('discord.io');
 var logger = require('winston');
 var request = require('request');
@@ -148,7 +151,7 @@ bot.on('ready', function (evt) {
     }
     bot.setPresence({ game: { name: "!commands" } });
     
-    setInterval(resetVariables, 600000); // every 10 minutes
+    //setInterval(resetVariables, 900000); // every 15 minutes
 });
 
 bot.on('disconnect', function(msg, code) {
