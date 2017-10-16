@@ -9,7 +9,7 @@ var logger = require('winston');
 var request = require('request');
 var parser = require('xml2json');
 
-var version = "2017.10.14.1300",
+var version = "2017.10.16.1353",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
     weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
@@ -151,7 +151,7 @@ bot.on('ready', function (evt) {
     }
     bot.setPresence({ game: { name: "!commands" } });
     
-    //setInterval(resetVariables, 900000); // every 15 minutes
+    setInterval(resetVariables, 600000); // every 10 minutes
 });
 
 bot.on('disconnect', function(msg, code) {
@@ -404,6 +404,6 @@ bot.on('message', function (user, userID, channelID, message, event) {
 });
 
 // pings server every 15 minutes to prevent dynos from sleeping
-setInterval(() => {
+/*setInterval(() => {
   request.get("https://magnemite.herokuapp.com");
-}, 900000);
+}, 900000);*/
