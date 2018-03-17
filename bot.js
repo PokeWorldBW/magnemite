@@ -144,10 +144,10 @@ bot.on('ready', function (evt) {
     logger.info('Logged in as: ');
     logger.info(bot.username + ' - (' + bot.id + ')');
     
-    if (!startup) {
+    /*if (!startup) {
         bot.sendMessage({ message: "Bz bz bzzt! " + version, to: owner });
         startup = true;
-    }
+    }*/
     bot.setPresence({ game: { name: "!commands" } });
     
     setInterval(resetVariables, 600000); // every 10 minutes
