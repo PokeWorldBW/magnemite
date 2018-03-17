@@ -158,7 +158,7 @@ bot.on('disconnect', function(msg, code) {
         return console.error(msg);
     }
     bot.connect();
-    bot.sendMessage({ message: "Bz bz bzzt! Successfully reconnected! (Code: " + code + ")", to: owner });
+    //bot.sendMessage({ message: "Bz bz bzzt! Successfully reconnected! (Code: " + code + ")", to: owner });
 });
 
 bot.on('message', function (user, userID, channelID, message, event) {
