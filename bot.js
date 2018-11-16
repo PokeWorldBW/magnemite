@@ -4,6 +4,8 @@
 // https://stackoverflow.com/questions/5306729/how-do-markov-chain-chatbots-work/5307230#5307230
 // https://walterhickey.tumblr.com/post/116609445662/twitter-markov-bot-part-1-scraping-the-words
 
+// Use node-fetch?
+
 var Discord = require('discord.io');
 var logger = require('winston');
 var request = require('request');
@@ -309,6 +311,10 @@ bot.on('message', function (user, userID, channelID, message, event) {
                                     var tokens = info.split("\n");
                                     if (tokens[0][tokens[0].length - 1] != ":") {
                                         info = tokens[0];
+                                    }
+                                    if (info.length > 2000) {
+                                        info = info.substring(0, 2000);
+                                        info = info.substring(0, info.lastIndexOf("."));
                                     }
                                     if (info === "") {
                                         bot.sendMessage({ message: "**" + data.toUpperCase() + "** could not be found!!", to: channelID });
