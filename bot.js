@@ -314,7 +314,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                                     }
                                     if (info.length > 2000) {
                                         info = info.substring(0, 2000);
-                                        info = info.substring(0, info.lastIndexOf("."));
+                                        info = info.substring(0, info.lastIndexOf(".") + 1);
                                     }
                                     if (info === "") {
                                         bot.sendMessage({ message: "**" + data.toUpperCase() + "** could not be found!!", to: channelID });
