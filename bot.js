@@ -255,6 +255,9 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         if (userID === bot.id) {
                             iq *= Math.floor(Math.pow(10, 1 + Math.random())) / 10;
                         }
+                        if (user == "Capen" || user == "Yttrium") {
+                        	iq = "infinite"
+                        }
                         userinfo[userID].iq = iq;
                     }
                     bot.sendMessage({ message: "<@" + userID + ">'s IQ is " + userinfo[userID].iq + ".", to: channelID });
