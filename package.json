@@ -13,9 +13,12 @@
     "xml2json": "0.11.0"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node bot.js"
   },
-  "license": "idk",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": "10.13.0"
+  },
   "repository" : { 
     "type" : "git", 
     "url" : "https://github.com/jchan601/magnemite"
