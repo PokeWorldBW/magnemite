@@ -1,4 +1,4 @@
-// documentation https://izy521.gitbooks.io/discord-io/content/
+// documentation https://izy521.github.io/discord.io-docs/Discord.Client.html
 // request https://github.com/request/request
 
 // https://stackoverflow.com/questions/5306729/how-do-markov-chain-chatbots-work/5307230#5307230
@@ -13,7 +13,7 @@ var request = require('request');
 var version = "2017.10.16.1353",
     owner = "356152143004041218", // DM with Yttrium
     startup = false,
-    weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
+    //weather_apis = ["c042cb323ce03f09", "d33d792d0d281e83", "97817071da18ec7c", "2bace54c80ae0102"],
     weather_usage = 0,
     phrases = ["When your only tool is a hammer, all problems start looking like nails.", "99 percent of lawyers give the rest a bad name.", "Artificial intelligence is no match for natural stupidity.", "The last thing I want to do is insult you. But it IS on the list.", "I don't have a solution, but I do admire the problem.", "The only substitute for good manners is fast reflexes.", "Support bacteria - they're the only culture some people have.", "Letting the cat out of the bag is a whole lot easier than putting it back in.", "Well, here I am! What are your other two wishes?", "Sounds like its time to get that Enterprise built!", "Time doesn't exist. Clocks exist.", "My mind's made up, don't confuse me with facts.", "Talk is cheap. Until you hire a lawyer.", "Take my advice — I'm not using it.", "I got lost in thoughts. It was unfamiliar territory.", "Sure, I'd love to help you out ... now, which way did you come in?", "I would like to slip into something more comfortable - like a coma.", "I started with nothing, and I still have most of it.", "Ever stop to think, and forget to start again?", "There is no dance without the dancers.", "Out of my mind. Back in five minutes.", "The problem with trouble shooting is that trouble shoots back.", "If you are here - who is running hell?", "If nothing was learned, nothing was taught.", "Very funny, Scotty. Now beam down my clothes...", "The dogs bark but the caravan moves on.", "Which one of these is the non-smoking lifeboat?", "Treat each day as your last; one day you will be right.", "Red meat is not bad for you. Fuzzy green meat is bad for you.", "The early bird may get the worm, but the second mouse gets the cheese.", "Isn't it scary that doctors call what they do \"practice\"?", "The problem with sex in the movies is, that the popcorn usually spills.", "If I want your opinion, I'll ask you to fill out the necessary forms.", "Living on Earth is expensive, but it does include a free trip around the sun.", "Despite the cost of living, have you noticed how popular it remains?", "All power corrupts. Absolute power is pretty neat, though.", "Always remember you're unique, just like everyone else.", "Everybody repeat after me: \"We are all individuals.\"", "Confession is good for the soul, but bad for your career.", "A bartender is just a pharmacist with a limited inventory.", "I want patience - AND I WANT IT NOW!!!!", "A day for firm decisions! Or is it?", "Am I ambivalent? Well, yes and no.", "Bombs don't kill people, explosions kill people.", "Bureaucrats cut red tape, lengthwise.", "Help stamp out, eliminate and abolish redundancy!", "How many of you believe in telekinesis? Raise MY hand!", "A dog has an owner. A cat has a staff.", "Every organization is perfectly designed to get the results they are getting.", "Welcome to Utah: set your watch back 20 years.", "Seen it all, done it all, can't remember most of it.", "Under my gruff exterior lies an even gruffer interior.", "Jesus loves you, it's everybody else that thinks you're an a...", "A clear conscience is usually the sign of a bad memory.", "To steal ideas from one person is plagiarism; to steal from many is research.", "I am an agent of Satan, but my duties are largely ceremonial.", "You have the capacity to learn from your mistakes, and you will learn a lot today.", "Failure is not an option. It's bundled with your software.", "I think sex is better than logic, but I can't prove it.", "I drive way too fast to worry about cholesterol.", "When everything's coming your way, you're in the wrong lane and going the wrong way.", "If at first you don't succeed, redefine success.", "If at first you don't succeed, destroy all evidence that you tried.", "I want to go to IKEA, hide in a wardrobe, wait for someone to open it and yell \"WELCOME TO NARNIA\".", "Life isn't about waiting for the storm to pass ... it's about learning to dance in the rain!", "My conscience is clean — I have never used it.", "Covfefe", "They misunderestimated me.", "I know the human being and fish can coexist peacefully.", "See, in my line of work you got to keep repeating things over and over and over again for the truth to sink in, to kind of catapult the propaganda.", "I'm the commander, see. I don't need to explain — I do not need to explain why I say things. That's the interesting thing about being the President. Maybe somebody needs to explain to me why they say something, but I don't feel like I owe anybody an explanation.", "This is still a dangerous world. It's a world of madmen and uncertainty and potential mental losses.", "Our enemies are innovative and resourceful, and so are we. They never stop thinking about new ways to harm our country and our people, and neither do we.", "I'm telling you there's an enemy that would like to attack America, Americans, again. There just is. That's the reality of the world. And I wish him [Barack Obama] all the very best.", "I just want you to know that, when we talk about war, we're really talking about peace.", "You bet I cut the taxes at the top. That encourages entrepreneurship. What we Republicans should stand for is growth in the economy. We ought to make the pie higher.", "You work three jobs? ... Uniquely American, isn't it? I mean, that is fantastic that you're doing that.", "Rarely is the question asked: Is our children learning?", "You teach a child to read, and he or her will be able to pass a literacy test.", "As yesterday's positive report card shows, childrens do learn when standards are high and results are measured.", "Mitochondria is the powerhouse of the cell.", "I am the mayor. I can do anything I want."], // from http://www.smart-words.org/quotes-sayings/famous-one-liners.html
     userinfo = {},
@@ -42,7 +42,7 @@ var commandInfo = [
     "`job` - gives you a random job",
     "`news` - gets headlines from a news website",
     "`say` - tells Magnemite what to say",
-    "`weather` - tells you the weather in some location",
+    //"`weather` - tells you the weather in some location",
     "`wiki` - looks something up on Wikipedia",
     "`wikipedia` - same as `wiki` but capitalization is not automatically formatted",
     "",
@@ -176,7 +176,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                 case "bzt": case "ping":
                     bot.sendMessage({ message: "Bz bz bzzt! " + random(phrases), to: channelID });
                 break;
-                case "weather":
+                /*case "weather":
                     if (data) {
                         var url = "http://api.wunderground.com/api/" + weather_apis[weather_usage % weather_apis.length] + "/conditions/q";
                         data = data.split(":");
@@ -186,7 +186,7 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         url += ".json";
                         weatherForecast(url, channelID);
                     };
-                break;
+                break;*/
                 case "define":
 					if (data) {
                         request.get(
@@ -255,8 +255,8 @@ bot.on('message', function (user, userID, channelID, message, event) {
                         if (userID === bot.id) {
                             iq *= Math.floor(Math.pow(10, 1 + Math.random())) / 10;
                         }
-                        if (user == "Capen" || user == "Yttrium") {
-                        	iq = "infinite"
+                        if (user == "Capen") {
+                        	iq = "-∞"
                         }
                         userinfo[userID].iq = iq;
                     }
