@@ -49,7 +49,7 @@ Shard: ${guild.shard.id}`);
 		message.channel.send(avatarList);
 	}
 
-	// const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+	// const command = client.commands.get(commandName)		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
 	// message.reply responds to user with mention
 });
