@@ -1,23 +1,25 @@
 {
   "name": "magnemite",
-  "version": "1.0.0",
-  "description": "Discord bot for The Dock",
-  "main": "bot.js",
-  "author": "Yttrium",
-  "dependencies": {
-    "discord.io": "^2.5.2",
-    "request": "^2.81.0",
-    "winston": "^2.3.1"
-  },
+  "version": "2.0.0",
+  "description": "A basic Discord chat bot",
+  "main": "index.js",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node src/index.js"
   },
-  "license": "UNLICENSED",
-  "engines": {
-    "node": "10.13.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justinc646/magnemite.git"
   },
-  "repository" : { 
-    "type" : "git", 
-    "url" : "https://github.com/jchan601/magnemite"
+  "author": "Yttrium",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/justinc646/magnemite/issues"
+  },
+  "homepage": "https://github.com/justinc646/magnemite#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.3.1"
   }
 }
