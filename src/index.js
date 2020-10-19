@@ -1,6 +1,9 @@
 const { token } = require('../token.json');
 const { prefix } = require('../config.json');
 
+// console.log(require('../token.json'));
+console.log(process.env._);
+
 /* Reminder that it is possible to use Maps, so don't use objects where maps are appropriate*/
 
 // Require the discord.js module
