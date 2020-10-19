@@ -1,4 +1,5 @@
-const { token } = require('../token.json');
+// const { token } = require('../token.json');
+const token = '';
 const { prefix } = require('../config.json');
 
 // console.log(require('../token.json'));
