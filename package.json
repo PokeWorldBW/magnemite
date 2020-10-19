@@ -17,9 +17,10 @@
   },
   "homepage": "https://github.com/justinc646/magnemite#readme",
   "dependencies": {
-    "discord.js": "^12.2.0"
+    "color-hash": "^1.0.3",
+    "discord.js": "^12.3.1"
   },
   "devDependencies": {
-    "eslint": "^7.3.1"
+    "eslint": "^7.11.0"
   }
 }
