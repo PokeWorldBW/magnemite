@@ -1,4 +1,4 @@
-const { prefix, version } = require('../config.json');
+const { prefix, version } = require('../settings.json');
 
 let credentials;
 if (process.env._ == '/app/.heroku/node/bin/npm') {
@@ -23,6 +23,21 @@ const colorHash = new ColorHash();
 
 let userinfo = {};
 
+// User for per person role names
+// Reads a number and converts it into UTF-16 characters 3 digits at a time
+/* function compress(num) {
+	const str = num.toString();
+	let ret = '', i, n, s;
+	for (i = 0; i < str.length; i += 3) {
+		s = str.substring(i, Math.min(i + 3, str.length));
+		n = parseInt(s, 10);
+		// Add an offset to the number so it doesn't pick up special characters
+		// https://en.wikipedia.org/wiki/List_of_Unicode_characters#Control_codes
+		ret += String.fromCharCode(n + (n < 95 ? 33 : 67));
+	}
+	return ret;
+}*/
+
 function resetVariables() {
 	userinfo = {};
 }
@@ -33,7 +48,6 @@ function changeRandomColorRole() {
 		.then(guild => {
 			guild.roles.fetch('753441236198883448')
 				.then(role => {
-					console.log(role.hexColor);
 					if (role.hexColor !== color) {
 						role.setColor(color);
 					}
@@ -57,9 +71,9 @@ client.on('message', message => {
 	if (!message.content.startsWith(prefix) || message.author.bot) return;
 	const args = message.content.slice(prefix.length).split(/ +/);
 	const command = args.shift().toLowerCase();
-	console.log(command);
+	// console.log(command);
 	const { content, guild, channel } = message;
-	console.log(content);
+	// console.log(content);
 	if (content === `${prefix}server`) {
 		channel.send(`Server name: ${guild.name}
 Owner: ${guild.owner.user.username}
@@ -88,7 +102,6 @@ Account Creation Time: ${message.author.createdAt}`);
 		channel.send(`Version: ${version}`);
 	} else if (command === 'iq') {
 		const userID = message.author.id;
-		console.log(channel.name);
 		if (!Object.prototype.hasOwnProperty.call(userinfo, userID)) {
 			userinfo[userID] = {};
 		}
@@ -96,10 +109,10 @@ Account Creation Time: ${message.author.createdAt}`);
 			// adapted from https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
 			const u1 = Math.random(), u2 = Math.random(), trig = Math.random() < 0.5 ? Math.cos : Math.sin;
 			const z = Math.sqrt(-2 * Math.log(u1)) * trig(2 * Math.PI * u2);
-			let iq = Math.floor((z * 15 + 100) * 10) / 10;
+			let iq = z * 15 + 100;
 			if (channel.name === 'power-plant') {
-				// Increase IQ
-				iq = Math.floor(Math.sqrt(iq) * 100) / 10 + 12 + Math.floor(Math.pow(Math.random() * 10 + Math.random(), Math.random() + 1));
+				// Increase IQ (if less than 144)
+				iq = Math.sqrt(iq) * (12 + Math.random());
 			}
 			// Decrease IQ
 			// if (false) { iq = Math.floor((iq - Math.pow(Math.random() * 10 + Math.random(), Math.random() + 1)) * 10) / 10; }
@@ -108,7 +121,7 @@ Account Creation Time: ${message.author.createdAt}`);
 			}*/
 			userinfo[userID].iq = iq;
 		}
-		channel.send(`<@${userID}>'s IQ is ${userinfo[userID].iq}.`);
+		channel.send(`<@${userID}>'s IQ is ${userinfo[userID].iq.toFixed(1)}.`);
 	}
 
 	// const command = client.commands.get(commandName)		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
@@ -116,5 +129,5 @@ Account Creation Time: ${message.author.createdAt}`);
 	// message.reply responds to user with mention
 });
 
-// Login to Discord with your app's token
+// Login to Discord with the app's token
 client.login(credentials.discord_token);
