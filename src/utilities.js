@@ -17,4 +17,12 @@ module.exports = {
 		}
 		return ret;
 	},
+	// Stolen from https://stackoverflow.com/questions/30003353/can-es6-template-literals-be-substituted-at-runtime-or-reused/37217166#37217166
+	format(templateString, templateVars) {
+		return new Function('return `' + templateString + '`;').call(templateVars);
+	},
+	// Removes leading [ and trailing ]
+	removeBrackets(string) {
+		return string.replace(/^\[(.*)\]$/, '$1');
+	},
 };

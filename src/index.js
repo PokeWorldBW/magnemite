@@ -33,6 +33,7 @@ client.bot = {
 		version: version,
 	},
 	config: config,
+	shuttingDown: false,
 };
 
 client.plugins = new Discord.Collection();
@@ -59,6 +60,7 @@ for (const file of pluginFiles) {
 
 client.userInfo = new Map();
 client.responseCache = new Map();
+client.sessions = new Map();
 
 client.cooldowns = {
 	users: new Map(),
@@ -95,14 +97,18 @@ function updateRandomColorRoles() {
 client.once('ready', () => {
 	console.log('Ready!');
 	// Reset variables every 10 minutes
-	setInterval(Utilities.resetVariables, 600000);
+	setInterval(Utilities.resetVariables, 60000, client);
 	// Check every hour
 	setInterval(updateRandomColorRoles, 3600000);
 });
 
 client.on('message', message => {
-	const args = message.content.slice(prefix.length).split(/ +/);
+	let args = message.content.slice(prefix.length).split(/ +/);
 	const command = args.shift().toLowerCase();
+
+	// Remove wrapping [ and ] from args
+	args = args.map(arg => Utilities.removeBrackets(arg));
+
 	if (!message.author.bot && message.content.startsWith(prefix)) {
 		if (message.author.id != config.ownerId) {
 			for (let i = 0; i < config.blockedRoles.length; i++) {
@@ -121,7 +127,7 @@ client.on('message', message => {
 				client.plugins.get(pluginName).get(commandName).execute(message, args, client);
 			} catch (error) {
 				console.error(error);
-				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}#${message.channel.name}\`:\n\`\`\`\n${message.content}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
+				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.content}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
 				client.channels.cache.get(config.debugChannel).send(errorMessage);
 				message.reply('there was an error trying to execute that command!');
 			}
@@ -134,7 +140,11 @@ client.on('message', message => {
 });
 
 client.on('messageDelete', message => {
-	client.channels.cache.get(config.logChannel).send(`Messaged deleted by \`${message.author.tag}\` in \`${message.guild.name}#${message.channel.name}\`:\n\`\`\`\n${message.content}\n\`\`\``);
+	client.channels.cache.get(config.logChannel).send(`Message from \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\` was deleted:\n\`\`\`\n${message.content}\n\`\`\``);
+});
+
+client.on('messageUpdate', oldMessage => {
+	client.channels.cache.get(config.logChannel).send(`Message from \`${oldMessage.author.tag}\` in \`${oldMessage.guild.name}\`#\`${oldMessage.channel.name}\` was edited\nOld Message:\n\`\`\`\n${oldMessage.content}\n\`\`\``);
 });
 
 // Login to Discord with the app's token
