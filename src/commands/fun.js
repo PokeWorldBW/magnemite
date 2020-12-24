@@ -1,23 +1,27 @@
 const Discord = require('discord.js');
+const Utilities = require('../utilities.js');
+
+let magic8BallAnswers = [];
 
 module.exports = {
 	name: 'fun',
 	commands: [
 		{
 			name: 'iq',
-			description: '',
-			help: '',
+			description: 'Tells you your IQ!',
+			help: 'Type `${this.prefix}${this.command}`',
 			execute(message, args, client) {
 				const userID = message.author.id;
 				if (!client.userInfo.has(userID)) {
 					client.userInfo.set(userID, new Discord.Collection());
 				}
 				const userData = client.userInfo.get(userID);
+				let iq;
 				if (!userData.has('iq')) {
 					// adapted from https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
 					const u1 = Math.random(), u2 = Math.random(), trig = Math.random() < 0.5 ? Math.cos : Math.sin;
 					const z = Math.sqrt(-2 * Math.log(u1)) * trig(2 * Math.PI * u2);
-					let iq = z * 15 + 100;
+					iq = z * 15 + 100;
 					if (message.channel.name === 'power-plant') {
 						// Increase IQ (if less than 144)
 						iq = Math.sqrt(iq) * (12 + Math.random());
@@ -28,14 +32,16 @@ module.exports = {
 						iq *= Math.floor(Math.pow(10, 1 + Math.random())) / 10;
 					}
 					userData.set('iq', iq);
+				} else {
+					iq = userData.get('iq');
 				}
-				message.channel.send(`<@${userID}>'s IQ is ${userData.get('iq').toFixed(1)}.`);
+				message.channel.send(`<@${userID}>'s IQ is ${iq.toFixed(1)}.`);
 			},
 		},
 		{
 			name: 'avatar',
 			description: '',
-			help: '',
+			help: 'Type `${this.prefix}${this.command}` to get the link to your own avatar, or `${this.prefix}${this.command} [@user]...` to check another user\'s avatar',
 			aliases: ['icon', 'pfp'],
 			execute(message) {
 				if (!message.mentions.users.size) {
@@ -48,6 +54,37 @@ module.exports = {
 				// send the entire array of strings as a message
 				// by default, discord.js will `.join()` the array with `\n`
 				message.channel.send(avatarList);
+			},
+		},
+		{
+			name: '8ball',
+			description: '',
+			help: '',
+			aliases: ['eightball', 'magic8ball', 'magiceightball'],
+			execute(message, args, client) {
+				if (magic8BallAnswers.length == 0) {
+					magic8BallAnswers = Utilities.loadData('8ball.txt');
+				}
+				const data = Utilities.combineArgs(args);
+				if (data == null) {
+					const command = message.content.slice(client.bot.settings.prefix.length).split(/ +/).shift();
+					return message.reply(`you forgot to ask me something! Correct usage is \`${client.bot.settings.prefix}${command} [question]\``);
+				}
+				const question = data.replace(/[^A-z0-9]+/g, '').toLowerCase();
+				if (!client.responseCache.has('8ball')) {
+					client.responseCache.set('8ball', new Discord.Collection());
+				}
+				const responseData = client.responseCache.get('8ball');
+				let response;
+				if (!responseData.has(question)) {
+					response = magic8BallAnswers[Utilities.rand(0, magic8BallAnswers.length)];
+					if (response != 'Concentrate and ask again.' && response != 'Reply hazy try again.') {
+						responseData.set(question, response);
+					}
+				} else {
+					response = responseData.get(question);
+				}
+				message.channel.send(response);
 			},
 		},
 	],

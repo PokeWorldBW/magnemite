@@ -3,16 +3,16 @@ module.exports = {
 	commands: [
 		{
 			name: 'version',
-			description: '',
-			help: 'dong!',
+			description: 'Displays the bot version',
+			help: 'Type `${this.prefix}${this.command}`',
 			execute(message, args, client) {
 				message.channel.send(`Current version is: \`${client.bot.settings.version}\``);
 			},
 		},
 		{
 			name: 'info',
-			description: '',
-			help: '',
+			description: 'Shows information about the server or the user',
+			help: 'Type `${this.prefix}${this.command} server` or `${this.prefix}${this.command} user` to see information about the server or yourself\nThis cannot be used on other users',
 			execute(message, args, client) {
 				const data = args[0].toLowerCase();
 				switch (data) {

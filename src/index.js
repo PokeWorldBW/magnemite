@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const fs = require('fs');
-const { prefix, version } = require('../settings.json');
+const { prefix, version, avatars } = require('../settings.json');
 const Utilities = require('./utilities.js');
 
 let config, credentials;
@@ -31,6 +31,7 @@ client.bot = {
 	settings: {
 		prefix: prefix,
 		version: version,
+		avatars: avatars,
 	},
 	config: config,
 	shuttingDown: false,
@@ -96,6 +97,7 @@ function updateRandomColorRoles() {
 // This event will only trigger one time after logging in
 client.once('ready', () => {
 	console.log('Ready!');
+	// client.user.setPresence({ activity: { name: '!commands' } });
 	// Reset variables every 10 minutes
 	setInterval(Utilities.resetVariables, 60000, client);
 	// Check every hour
@@ -140,11 +142,15 @@ client.on('message', message => {
 });
 
 client.on('messageDelete', message => {
-	client.channels.cache.get(config.logChannel).send(`Message from \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\` was deleted:\n\`\`\`\n${message.content}\n\`\`\``);
+	if (!message.author.bot) {
+		client.channels.cache.get(config.logChannel).send(`Message from \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\` was deleted:\n\`\`\`\n${message.content}\n\`\`\``);
+	}
 });
 
-client.on('messageUpdate', oldMessage => {
-	client.channels.cache.get(config.logChannel).send(`Message from \`${oldMessage.author.tag}\` in \`${oldMessage.guild.name}\`#\`${oldMessage.channel.name}\` was edited\nOld Message:\n\`\`\`\n${oldMessage.content}\n\`\`\``);
+client.on('messageUpdate', (oldMessage, newMessage) => {
+	if (!oldMessage.author.bot) {
+		client.channels.cache.get(config.logChannel).send(`Message from \`${oldMessage.author.tag}\` in \`${oldMessage.guild.name}\`#\`${oldMessage.channel.name}\` was edited\nOld Message:\n\`\`\`\n${oldMessage.content}\n\`\`\`\nNew Message:\n\`\`\`\n${newMessage.content}\n\`\`\``);
+	}
 });
 
 // Login to Discord with the app's token

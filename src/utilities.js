@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 module.exports = {
 	// Overwrite all previous data
 	resetVariables(client) {
@@ -24,5 +26,19 @@ module.exports = {
 	// Removes leading [ and trailing ]
 	removeBrackets(string) {
 		return string.replace(/^\[(.*)\]$/, '$1');
+	},
+	rand(min, max) {
+		return Math.floor(Math.random() * (max - min) + min);
+	},
+	loadData(fileName) {
+		return fs.readFileSync(`./data/${fileName}`, 'utf8').split('\r\n').filter(line => line != '');
+	},
+	combineArgs(args) {
+		// Only call removeBrackets if there are more than 1 arg since it would have already been called on the arg by the message handler
+		if (Array.isArray(args) && args.length > 0) {
+			return args.length > 1 ? this.removeBrackets(args.join(' ')) : args[0];
+		} else {
+			return null;
+		}
 	},
 };

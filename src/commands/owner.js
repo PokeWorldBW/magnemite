@@ -29,9 +29,11 @@ module.exports = {
 			description: 'Makes the bot send a message',
 			help: 'Type `${this.prefix}${this.command} [phrase]`',
 			execute(message, args) {
+				const msg = Utilities.combineArgs(args);
+				if (msg == null) {
+					return message.reply('you need to provide me with something to say!');
+				}
 				message.delete();
-				// Only call removeBrackets if there are more than 1 arg since it would have already been called on the arg by the message handler
-				const msg = args.length > 1 ? Utilities.removeBrackets(args.join(' ')) : args[0];
 				message.channel.send(msg);
 			},
 		},
@@ -47,6 +49,33 @@ module.exports = {
 					client.bot.shuttingDown = true;
 					message.channel.send('Beginning shutdown preparations!');
 					// TO-DO: Print out active activity sessions
+				}
+			},
+		},
+		{
+			name: 'setstatus',
+			description: 'Sets the bot\'s status',
+			help: 'Type `${this.prefix}${this.command} [status]`',
+			execute(message, args, client) {
+				const status = Utilities.combineArgs(args);
+				console.log(status);
+				if (status == null) {
+					client.user.setPresence({ activity: { name: '' } });
+				} else {
+					client.user.setPresence({ activity: { name: status } });
+				}
+			},
+		},
+		{
+			name: 'setavatar',
+			description: 'Sets the bot\'s avatar',
+			help: 'Type `${this.prefix}${this.command} [image]`',
+			execute(message, args, client) {
+				const image = Utilities.combineArgs(args).toLowerCase();
+				if (Object.prototype.hasOwnProperty.call(client.bot.settings.avatars, image)) {
+					client.user.setAvatar(client.bot.settings.avatars[image]).catch(console.error);
+				} else {
+					message.reply('I couldn\'t find that image.');
 				}
 			},
 		},

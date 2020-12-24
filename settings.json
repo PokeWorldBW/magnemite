@@ -1,4 +1,12 @@
 {
 	"prefix": "!",
-	"version": "2020.12.24.0016"
+	"version": "2020.12.24.0416",
+	"avatars": {
+		"normal": "./images/icons/magnemite_pmd.png",
+		"happy": "./images/icons/magnemite_pmd_happy.png",
+		"anxious": "./images/icons/magnemite_pmd_anxious.png",
+		"lexi": "./images/icons/magnemite_lexi.png",
+		"magneton": "./images/icons/magneton_pmd.png",
+		"magnezone": "./images/icons/magnezone_pmd.png"
+	}
 }
