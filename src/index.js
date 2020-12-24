@@ -1,12 +1,17 @@
 const { prefix, version } = require('../settings.json');
 
-let credentials;
+let config, credentials;
 if (process.env._ == '/app/.heroku/node/bin/npm') {
 	// Use Heroku Config Vars when running on Heroku
+	config = {
+		randomColorGuilds: process.env.RANDOM_COLOR_GUILDS.split('|'),
+		randomColorRoles: process.env.RANDOM_COLOR_ROLES.split('|'),
+	};
 	credentials = {
 		discord_token: process.env.TOKEN,
 	};
 } else {
+	config = require('../config.json');
 	credentials = require('../credentials.json');
 }
 
@@ -42,11 +47,10 @@ function resetVariables() {
 	userinfo = {};
 }
 
-function changeRandomColorRole() {
-	const color = colorHash.hex((new Date()).toLocaleDateString());
-	client.guilds.fetch('688199188420231250')
+function changeRandomColorRole(color, serverId, roleId) {
+	client.guilds.fetch(serverId)
 		.then(guild => {
-			guild.roles.fetch('753441236198883448')
+			guild.roles.fetch(roleId)
 				.then(role => {
 					if (role.hexColor !== color) {
 						role.setColor(color);
@@ -57,6 +61,13 @@ function changeRandomColorRole() {
 		.catch(console.error);
 }
 
+function updateRandomColorRoles() {
+	const color = colorHash.hex((new Date()).toLocaleDateString());
+	for (let i = 0; i < config.randomColorGuilds.length; i++) {
+		changeRandomColorRole(color, config.randomColorGuilds[i], config.randomColorRoles[i]);
+	}
+}
+
 // When the client is ready, run this code
 // This event will only trigger one time after logging in
 client.once('ready', () => {
@@ -64,7 +75,7 @@ client.once('ready', () => {
 	// Reset variables every 10 minutes
 	setInterval(resetVariables, 600000);
 	// Check every hour
-	setInterval(changeRandomColorRole, 3600000);
+	setInterval(updateRandomColorRoles, 3600000);
 });
 
 client.on('message', message => {
