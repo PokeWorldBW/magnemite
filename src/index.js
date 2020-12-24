@@ -1,4 +1,7 @@
+const Discord = require('discord.js');
+const fs = require('fs');
 const { prefix, version } = require('../settings.json');
+const Utilities = require('./utilities.js');
 
 let config, credentials;
 if (process.env._ == '/app/.heroku/node/bin/npm') {
@@ -6,6 +9,10 @@ if (process.env._ == '/app/.heroku/node/bin/npm') {
 	config = {
 		randomColorGuilds: process.env.RANDOM_COLOR_GUILDS.split('|'),
 		randomColorRoles: process.env.RANDOM_COLOR_ROLES.split('|'),
+		debugChannel: process.env.DEBUG_CHANNEL,
+		logChannel: process.env.LOG_CHANNEL,
+		ownerId: process.env.OWNER_ID,
+		blockedRoles: process.env.BLOCKED_ROLES.split('|'),
 	};
 	credentials = {
 		discord_token: process.env.TOKEN,
@@ -15,37 +22,52 @@ if (process.env._ == '/app/.heroku/node/bin/npm') {
 	credentials = require('../credentials.json');
 }
 
-/* Reminder that it is possible to use Maps, so don't use objects where maps are appropriate*/
-
-// Require the discord.js module
-const Discord = require('discord.js');
+/* Reminder that it is possible to use Maps, so don't use objects where maps are appropriate */
 
 // Create a new Discord client
 const client = new Discord.Client();
 
+client.bot = {
+	settings: {
+		prefix: prefix,
+		version: version,
+	},
+	config: config,
+};
+
+client.plugins = new Discord.Collection();
+client.commands = new Discord.Collection();
+// For some reason, fs and require are in different "working directories"
+const pluginFiles = fs.readdirSync('./src/commands/').filter(file => file.endsWith('.js'));
+for (const file of pluginFiles) {
+	const plugin = require(`./commands/${file}`);
+	const pluginCommands = new Discord.Collection();
+	client.plugins.set(plugin.name, pluginCommands);
+
+	for (let i = 0; i < plugin.commands.length; i++) {
+		const command = plugin.commands[i];
+		pluginCommands.set(command.name, command);
+		client.commands.set(command.name, { pluginName: plugin.name, commandName: command.name });
+
+		if (Array.isArray(command.aliases) && command.aliases.length > 0) {
+			for (let j = 0; j < command.aliases.length; j++) {
+				client.commands.set(command.aliases[j], { pluginName: plugin.name, commandName: command.name });
+			}
+		}
+	}
+}
+
+client.userInfo = new Map();
+client.responseCache = new Map();
+
+client.cooldowns = {
+	users: new Map(),
+	channels: new Map(),
+	// servers: new Map(),
+};
+
 const ColorHash = require('color-hash');
 const colorHash = new ColorHash();
-
-let userinfo = {};
-
-// User for per person role names
-// Reads a number and converts it into UTF-16 characters 3 digits at a time
-/* function compress(num) {
-	const str = num.toString();
-	let ret = '', i, n, s;
-	for (i = 0; i < str.length; i += 3) {
-		s = str.substring(i, Math.min(i + 3, str.length));
-		n = parseInt(s, 10);
-		// Add an offset to the number so it doesn't pick up special characters
-		// https://en.wikipedia.org/wiki/List_of_Unicode_characters#Control_codes
-		ret += String.fromCharCode(n + (n < 95 ? 33 : 67));
-	}
-	return ret;
-}*/
-
-function resetVariables() {
-	userinfo = {};
-}
 
 function changeRandomColorRole(color, serverId, roleId) {
 	client.guilds.fetch(serverId)
@@ -73,71 +95,46 @@ function updateRandomColorRoles() {
 client.once('ready', () => {
 	console.log('Ready!');
 	// Reset variables every 10 minutes
-	setInterval(resetVariables, 600000);
+	setInterval(Utilities.resetVariables, 600000);
 	// Check every hour
 	setInterval(updateRandomColorRoles, 3600000);
 });
 
 client.on('message', message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
 	const args = message.content.slice(prefix.length).split(/ +/);
 	const command = args.shift().toLowerCase();
-	// console.log(command);
-	const { content, guild, channel } = message;
-	// console.log(content);
-	if (content === `${prefix}server`) {
-		channel.send(`Server name: ${guild.name}
-Owner: ${guild.owner.user.username}
-Total members: ${guild.memberCount}
-Creation Time: ${guild.createdAt}
-Region: ${guild.region}
-Id: ${guild.id}`);
-	} else if (message.content === `${prefix}user-info`) {
-		message.channel.send(`Username: ${message.author.username}
-Id: ${message.author.id}
-Account Creation Time: ${message.author.createdAt}`);
-	} else if (command === 'avatar') {
-		// or icon or pfp
-		if (!message.mentions.users.size) {
-			return message.channel.send(`Your avatar: <${message.author.displayAvatarURL({ format: 'png', dynamic: true })}>`);
-		}
-
-		const avatarList = message.mentions.users.map(user => {
-			return `${user.username}'s avatar: <${user.displayAvatarURL({ format: 'png', dynamic: true })}>`;
-		});
-
-		// send the entire array of strings as a message
-		// by default, discord.js will `.join()` the array with `\n`
-		message.channel.send(avatarList);
-	} else if (command === 'version') {
-		channel.send(`Version: ${version}`);
-	} else if (command === 'iq') {
-		const userID = message.author.id;
-		if (!Object.prototype.hasOwnProperty.call(userinfo, userID)) {
-			userinfo[userID] = {};
-		}
-		if (!Object.prototype.hasOwnProperty.call(userinfo[userID], 'iq')) {
-			// adapted from https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-			const u1 = Math.random(), u2 = Math.random(), trig = Math.random() < 0.5 ? Math.cos : Math.sin;
-			const z = Math.sqrt(-2 * Math.log(u1)) * trig(2 * Math.PI * u2);
-			let iq = z * 15 + 100;
-			if (channel.name === 'power-plant') {
-				// Increase IQ (if less than 144)
-				iq = Math.sqrt(iq) * (12 + Math.random());
+	if (!message.author.bot && message.content.startsWith(prefix)) {
+		if (message.author.id != config.ownerId) {
+			for (let i = 0; i < config.blockedRoles.length; i++) {
+				if (message.member.roles.cache.has(config.blockedRoles[i])) {
+					// Don't let this member use any commands
+					return;
+				}
 			}
-			// Decrease IQ
-			// if (false) { iq = Math.floor((iq - Math.pow(Math.random() * 10 + Math.random(), Math.random() + 1)) * 10) / 10; }
-			/* if (userID === client.id) {
-				iq *= Math.floor(Math.pow(10, 1 + Math.random())) / 10;
-			}*/
-			userinfo[userID].iq = iq;
 		}
-		channel.send(`<@${userID}>'s IQ is ${userinfo[userID].iq.toFixed(1)}.`);
+		if (client.commands.has(command)) {
+			try {
+				const { pluginName, commandName } = client.commands.get(command);
+				if (pluginName == 'owner' && message.author.id != config.ownerId) {
+					return;
+				}
+				client.plugins.get(pluginName).get(commandName).execute(message, args, client);
+			} catch (error) {
+				console.error(error);
+				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}#${message.channel.name}\`:\n\`\`\`\n${message.content}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
+				client.channels.cache.get(config.debugChannel).send(errorMessage);
+				message.reply('there was an error trying to execute that command!');
+			}
+		}
 	}
+	// Log DMs in case people are privately abusing the bot
+	if (message.channel.type == 'dm') {
+		client.channels.cache.get(config.logChannel).send(`Direct Message from \`${message.author.tag}\`:\n\`\`\`\n${message.content}\n\`\`\``);
+	}
+});
 
-	// const command = client.commands.get(commandName)		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-
-	// message.reply responds to user with mention
+client.on('messageDelete', message => {
+	client.channels.cache.get(config.logChannel).send(`Messaged deleted by \`${message.author.tag}\` in \`${message.guild.name}#${message.channel.name}\`:\n\`\`\`\n${message.content}\n\`\`\``);
 });
 
 // Login to Discord with the app's token
