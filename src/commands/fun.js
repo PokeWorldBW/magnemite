@@ -61,14 +61,13 @@ module.exports = {
 			description: '',
 			help: '',
 			aliases: ['eightball', 'magic8ball', 'magiceightball'],
-			execute(message, args, client) {
+			execute(message, args, client, props) {
 				if (magic8BallAnswers.length == 0) {
-					magic8BallAnswers = Utilities.loadData('8ball.txt');
+					magic8BallAnswers = Utilities.loadDataFromFile('8ball.txt');
 				}
 				const data = Utilities.combineArgs(args);
 				if (data == null) {
-					const command = message.content.slice(client.bot.settings.prefix.length).split(/ +/).shift();
-					return message.reply(`you forgot to ask me something! Correct usage is \`${client.bot.settings.prefix}${command} [question]\``);
+					return message.reply(`you forgot to ask me something! Correct usage is \`${props.prefix}${props.command} [question]\``);
 				}
 				const question = data.replace(/[^A-z0-9]+/g, '').toLowerCase();
 				if (!client.responseCache.has('8ball')) {

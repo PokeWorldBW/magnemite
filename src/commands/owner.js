@@ -1,3 +1,4 @@
+const moment = require('moment');
 const Utilities = require('../utilities.js');
 
 module.exports = {
@@ -77,6 +78,38 @@ module.exports = {
 				} else {
 					message.reply('I couldn\'t find that image.');
 				}
+			},
+		},
+		{
+			name: 'announce',
+			description: 'Creates an announcement to send in a channel at a specified time',
+			help: 'Type `${this.prefix}${this.command} [channelId] [time] [message]`',
+			execute(message, args, client, props) {
+				if (args.length < 3) {
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [channelId] [time] [message]\``);
+				}
+
+				const channelId = args[0];
+				if (!client.channels.cache.has(channelId)) {
+					return message.reply(`I am not in channel \`${channelId}\`!`);
+				}
+
+				const time = moment.utc(args[1], moment.ISO_8601, true);
+				if (!time.isValid()) {
+					return message.reply('correct time format is [year]-[month]-[day]T[hour]:[minute][Z]\nZ is optional parameter for the time zone offset in +/- hours from UTC');
+				}
+
+				const msg = Utilities.combineArgs(args.slice(2));
+				if (msg == null) {
+					return message.reply('you need to provide me with something to say!');
+				}
+
+				/* const data = {
+					channel: client.channels.cache.get(channelId),
+					time: time.toDate().valueOf(),
+					message: msg,
+				};*/
+				message.channel.send(`Announce to \`${channelId}\` at \`${time.format('dddd, MMMM Do YYYY, hh:mm a [[GMT+0]]')}\`:\n\`\`\`\n${msg}\n\`\`\``);
 			},
 		},
 	],

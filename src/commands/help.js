@@ -1,5 +1,5 @@
 module.exports = {
-	name: 'misc',
+	name: 'help',
 	commands: [
 		{
 			name: 'help',

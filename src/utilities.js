@@ -30,8 +30,8 @@ module.exports = {
 	rand(min, max) {
 		return Math.floor(Math.random() * (max - min) + min);
 	},
-	loadData(fileName) {
-		return fs.readFileSync(`./data/${fileName}`, 'utf8').split('\r\n').filter(line => line != '');
+	loadDataFromFile(fileName) {
+		return fs.readFileSync(`./data/${fileName}`, 'utf8').split(/\r?\n/).filter(line => line != '');
 	},
 	combineArgs(args) {
 		// Only call removeBrackets if there are more than 1 arg since it would have already been called on the arg by the message handler
@@ -40,5 +40,8 @@ module.exports = {
 		} else {
 			return null;
 		}
+	},
+	isOwner(client, userId) {
+		return client.bot.config.ownerId == userId;
 	},
 };

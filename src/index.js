@@ -10,6 +10,7 @@ if (process.env._ == '/app/.heroku/node/bin/npm') {
 		randomColorGuilds: process.env.RANDOM_COLOR_GUILDS.split('|'),
 		randomColorRoles: process.env.RANDOM_COLOR_ROLES.split('|'),
 		debugChannel: process.env.DEBUG_CHANNEL,
+		dataChannel: process.env.DATA_CHANNEL,
 		logChannel: process.env.LOG_CHANNEL,
 		ownerId: process.env.OWNER_ID,
 		blockedRoles: process.env.BLOCKED_ROLES.split('|'),
@@ -21,8 +22,6 @@ if (process.env._ == '/app/.heroku/node/bin/npm') {
 	config = require('../config.json');
 	credentials = require('../credentials.json');
 }
-
-/* Reminder that it is possible to use Maps, so don't use objects where maps are appropriate */
 
 // Create a new Discord client
 const client = new Discord.Client();
@@ -112,7 +111,7 @@ client.on('message', message => {
 	args = args.map(arg => Utilities.removeBrackets(arg));
 
 	if (!message.author.bot && message.content.startsWith(prefix)) {
-		if (message.author.id != config.ownerId) {
+		if (!Utilities.isOwner(client, message.author.id)) {
 			for (let i = 0; i < config.blockedRoles.length; i++) {
 				if (message.member.roles.cache.has(config.blockedRoles[i])) {
 					// Don't let this member use any commands
@@ -123,13 +122,15 @@ client.on('message', message => {
 		if (client.commands.has(command)) {
 			try {
 				const { pluginName, commandName } = client.commands.get(command);
-				if (pluginName == 'owner' && message.author.id != config.ownerId) {
+				if (pluginName == 'owner' && !Utilities.isOwner(client, message.author.id)) {
 					return;
 				}
-				client.plugins.get(pluginName).get(commandName).execute(message, args, client);
+				const props = { command: commandName, prefix: prefix };
+				client.plugins.get(pluginName).get(commandName).execute(message, args, client, props);
 			} catch (error) {
 				console.error(error);
-				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.content}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
+				// TO-DO: Include attachments
+				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.cleanContent}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
 				client.channels.cache.get(config.debugChannel).send(errorMessage);
 				message.reply('there was an error trying to execute that command!');
 			}
@@ -137,19 +138,20 @@ client.on('message', message => {
 	}
 	// Log DMs in case people are privately abusing the bot
 	if (message.channel.type == 'dm') {
+		// TO-DO: Include attachments
 		client.channels.cache.get(config.logChannel).send(`Direct Message from \`${message.author.tag}\`:\n\`\`\`\n${message.content}\n\`\`\``);
 	}
 });
 
 client.on('messageDelete', message => {
 	if (!message.author.bot) {
-		client.channels.cache.get(config.logChannel).send(`Message from \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\` was deleted:\n\`\`\`\n${message.content}\n\`\`\``);
+		client.channels.cache.get(config.logChannel).send(`Message from \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\` was deleted:\n\`\`\`\n${message.cleanContent}\n\`\`\``);
 	}
 });
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
-	if (!oldMessage.author.bot) {
-		client.channels.cache.get(config.logChannel).send(`Message from \`${oldMessage.author.tag}\` in \`${oldMessage.guild.name}\`#\`${oldMessage.channel.name}\` was edited\nOld Message:\n\`\`\`\n${oldMessage.content}\n\`\`\`\nNew Message:\n\`\`\`\n${newMessage.content}\n\`\`\``);
+	if (!oldMessage.author.bot && oldMessage.content != newMessage.content) {
+		client.channels.cache.get(config.logChannel).send(`Message from \`${oldMessage.author.tag}\` in \`${oldMessage.guild.name}\`#\`${oldMessage.channel.name}\` was edited\nOld Message:\n\`\`\`\n${oldMessage.cleanContent}\n\`\`\`New Message:\n\`\`\`\n${newMessage.cleanContent}\n\`\`\``);
 	}
 });
 
