@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const fs = require('fs');
-const { prefix, version, avatars } = require('../settings.json');
+const { prefix, version, avatars, dataStorage, resetVarInterval } = require('../settings.json');
 const Utilities = require('./utilities.js');
 
 let config, credentials;
@@ -14,6 +14,7 @@ if (process.env._ == '/app/.heroku/node/bin/npm') {
 		logChannel: process.env.LOG_CHANNEL,
 		ownerId: process.env.OWNER_ID,
 		blockedRoles: process.env.BLOCKED_ROLES.split('|'),
+		evalMessage: process.env.EVAL_MESSAGE,
 	};
 	credentials = {
 		discord_token: process.env.TOKEN,
@@ -60,6 +61,7 @@ for (const file of pluginFiles) {
 
 client.userInfo = new Map();
 client.responseCache = new Map();
+client.data = new Map();
 client.sessions = new Map();
 
 client.cooldowns = {
@@ -96,11 +98,50 @@ function updateRandomColorRoles() {
 // This event will only trigger one time after logging in
 client.once('ready', () => {
 	console.log('Ready!');
-	// client.user.setPresence({ activity: { name: '!commands' } });
-	// Reset variables every 10 minutes
-	setInterval(Utilities.resetVariables, 60000, client);
+
+	// client.user.setPresence({ activity: { name: status } });
+
+	setInterval(Utilities.resetVariables, resetVarInterval, client);
+
 	// Check every hour
 	setInterval(updateRandomColorRoles, 3600000);
+
+	client.channels.cache.get(config.dataChannel).messages.fetch()
+		.then(messages => {
+			messages.forEach(message => {
+				if (message.id == config.evalMessage) {
+					eval(message.content.substring(14, message.content.length - 4));
+				} else {
+					const storage = new Utilities.Storage(client, null, message);
+					client.data.set(storage.name, storage);
+
+					if (storage.name == 'ANNOUNCEMENTS') {
+						if (storage.has('announcements')) {
+							const announcements = storage.get('announcements');
+							const now = (new Date()).getTime();
+							for (let i = 0; i < announcements.length; i++) {
+								const { channelId, timeToSend, messageToSend } = announcements[i];
+								const channelToSend = client.channels.cache.get(channelId);
+								if (timeToSend >= now) {
+									setTimeout(Utilities.sendMessage, timeToSend - now, channelToSend, messageToSend);
+								}
+							}
+						}
+					}
+				}
+			});
+		})
+		.then(() => {
+			for (let i = 0; i < dataStorage.length; i++) {
+				const s = dataStorage[i];
+				if (!client.data.has(s)) {
+					Utilities.buildStorage(client, client.channels.cache.get(config.dataChannel), s).then(storage => {
+						client.data.set(storage.name, storage);
+					});
+				}
+			}
+		})
+		.catch(console.error);
 });
 
 client.on('message', message => {
@@ -129,7 +170,6 @@ client.on('message', message => {
 				client.plugins.get(pluginName).get(commandName).execute(message, args, client, props);
 			} catch (error) {
 				console.error(error);
-				// TO-DO: Include attachments
 				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.cleanContent}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
 				client.channels.cache.get(config.debugChannel).send(errorMessage);
 				message.reply('there was an error trying to execute that command!');
@@ -138,20 +178,10 @@ client.on('message', message => {
 	}
 	// Log DMs in case people are privately abusing the bot
 	if (message.channel.type == 'dm') {
-		// TO-DO: Include attachments
-		client.channels.cache.get(config.logChannel).send(`Direct Message from \`${message.author.tag}\`:\n\`\`\`\n${message.content}\n\`\`\``);
-	}
-});
-
-client.on('messageDelete', message => {
-	if (!message.author.bot) {
-		client.channels.cache.get(config.logChannel).send(`Message from \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\` was deleted:\n\`\`\`\n${message.cleanContent}\n\`\`\``);
-	}
-});
-
-client.on('messageUpdate', (oldMessage, newMessage) => {
-	if (!oldMessage.author.bot && oldMessage.content != newMessage.content) {
-		client.channels.cache.get(config.logChannel).send(`Message from \`${oldMessage.author.tag}\` in \`${oldMessage.guild.name}\`#\`${oldMessage.channel.name}\` was edited\nOld Message:\n\`\`\`\n${oldMessage.cleanContent}\n\`\`\`New Message:\n\`\`\`\n${newMessage.cleanContent}\n\`\`\``);
+		const content = message.content.length > 0 ? `\`\`\`\n${message.content}\`\`\`` : '';
+		const attachments = message.attachments.map(a => `<${a.attachment}>`).join('\n');
+		const attachMessage = attachments.length > 0 ? `\`Attachments:\`\n${attachments}` : '';
+		client.channels.cache.get(config.logChannel).send(`Direct Message from \`${message.author.tag}\`:\n${content}${attachMessage}`);
 	}
 });
 

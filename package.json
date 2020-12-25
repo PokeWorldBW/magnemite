@@ -19,7 +19,7 @@
   "dependencies": {
     "color-hash": "^1.0.3",
     "discord.js": "^12.3.1",
-    "moment": "^2.29.1"
+    "moment-timezone": "^0.5.32"
   },
   "devDependencies": {
     "eslint": "^7.11.0"

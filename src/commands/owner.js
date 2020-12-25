@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const Utilities = require('../utilities.js');
 
 module.exports = {
@@ -59,7 +59,6 @@ module.exports = {
 			help: 'Type `${this.prefix}${this.command} [status]`',
 			execute(message, args, client) {
 				const status = Utilities.combineArgs(args);
-				console.log(status);
 				if (status == null) {
 					client.user.setPresence({ activity: { name: '' } });
 				} else {
@@ -83,10 +82,10 @@ module.exports = {
 		{
 			name: 'announce',
 			description: 'Creates an announcement to send in a channel at a specified time',
-			help: 'Type `${this.prefix}${this.command} [channelId] [time] [message]`',
+			help: 'Type `${this.prefix}${this.command} [channelId] [time] [timeZone] [message]`',
 			execute(message, args, client, props) {
-				if (args.length < 3) {
-					return message.reply(`correct usage is \`${props.prefix}${props.command} [channelId] [time] [message]\``);
+				if (args.length < 4) {
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [channelId] [time] [timeZone] [message]\``);
 				}
 
 				const channelId = args[0];
@@ -94,22 +93,44 @@ module.exports = {
 					return message.reply(`I am not in channel \`${channelId}\`!`);
 				}
 
-				const time = moment.utc(args[1], moment.ISO_8601, true);
+				if (moment.tz.names().map(zone => zone.toLowerCase()).indexOf(args[2].toLowerCase()) == -1) {
+					return message.reply(`couldn't find a time zone called \`${args[2]}\`\nCheck <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> for a list of valid time zones`);
+				}
+				const time = moment.tz(args[1], args[2]).utc();
 				if (!time.isValid()) {
-					return message.reply('correct time format is [year]-[month]-[day]T[hour]:[minute][Z]\nZ is optional parameter for the time zone offset in +/- hours from UTC');
+					return message.reply('correct time format is [year]-[month]-[day]T[hour]:[minute]');
+				}
+				if (moment().isAfter(time)) {
+					return message.reply('that time is in the past!');
 				}
 
-				const msg = Utilities.combineArgs(args.slice(2));
-				if (msg == null) {
+				const messageToSend = Utilities.combineArgs(args.slice(3));
+				if (messageToSend == null) {
 					return message.reply('you need to provide me with something to say!');
 				}
 
-				/* const data = {
-					channel: client.channels.cache.get(channelId),
-					time: time.toDate().valueOf(),
-					message: msg,
-				};*/
-				message.channel.send(`Announce to \`${channelId}\` at \`${time.format('dddd, MMMM Do YYYY, hh:mm a [[GMT+0]]')}\`:\n\`\`\`\n${msg}\n\`\`\``);
+				const channelToSend = client.channels.cache.get(channelId);
+				const timeToSend = time.toDate().getTime();
+				const timeUntilSend = timeToSend - (new Date).getTime();
+				setTimeout(Utilities.sendMessage, timeUntilSend, channelToSend, messageToSend);
+
+				const announcement = {
+					channelId: channelId,
+					timeToSend: timeToSend,
+					messageToSend: messageToSend,
+				};
+				if (client.data.has('ANNOUNCEMENTS')) {
+					const storage = client.data.get('ANNOUNCEMENTS');
+					if (storage.has('announcements')) {
+						const announcements = storage.get('announcements');
+						announcements.push({ channelId: channelId, timeToSend: timeToSend, messageToSend: messageToSend });
+						storage.add('announcements', announcements);
+					} else {
+						storage.add('announcements', [ announcement ]);
+					}
+				}
+
+				message.channel.send(`Announce to \`${channelToSend.guild}\`#\`${channelToSend.name}\` at \`${time.format('dddd MM/DD/YYYY hh:mm [[UTC]]')}\`:\n\`\`\`\n${messageToSend}\n\`\`\``);
 			},
 		},
 	],
