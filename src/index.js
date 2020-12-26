@@ -117,7 +117,9 @@ client.once('ready', () => {
 	setInterval(updateRandomColorRoles, 3600000);
 
 	client.channels.fetch(config.dataChannel).then(channel => {
+		console.log(channel.id);
 		channel.messages.fetch().then(messages => {
+			console.log(messages);
 			console.log(messages.length);
 			messages.forEach(message => {
 				console.log(message.content);
