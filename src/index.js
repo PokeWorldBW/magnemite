@@ -34,6 +34,7 @@ client.bot = {
 	},
 	config: config,
 	shuttingDown: false,
+	uptime: 0,
 };
 
 client.plugins = new Discord.Collection();
@@ -106,6 +107,8 @@ function requireFromString(src) {
 client.once('ready', () => {
 	console.log('Ready!');
 
+	client.bot.uptime = (new Date()).getTime();
+
 	// client.user.setPresence({ activity: { name: status } });
 
 	setInterval(Utilities.resetVariables, resetVarInterval, client);
@@ -115,6 +118,7 @@ client.once('ready', () => {
 
 	client.channels.cache.get(config.dataChannel).messages.fetch()
 		.then(messages => {
+			console.log(messages.length);
 			messages.forEach(message => {
 				const delimiter = message.content.indexOf(':\n');
 				const name = message.content.substring(0, delimiter);
@@ -130,7 +134,6 @@ client.once('ready', () => {
 							}
 						});
 					}
-					// eval(message.content.substring(14, message.content.length - 4));
 				} else {
 					const storage = new Utilities.Storage(client, name, message);
 					client.data.set(storage.name, storage);

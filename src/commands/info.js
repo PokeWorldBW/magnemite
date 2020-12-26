@@ -14,7 +14,9 @@ module.exports = {
 			description: 'Shows how long the bot has been running',
 			help: 'Type `${this.prefix}${this.command}`',
 			execute(message, args, client) {
-				message.channel.send(`Current version is: \`${client.bot.settings.version}\``).catch(error => { console.error(`Error in 'uptime' command: ${error}`); });
+				const now = (new Date()).getTime();
+				const uptime = Math.floor((now - client.bot.uptime) / 1000);
+				message.channel.send(`Bot has been running for \`${uptime}\``).catch(error => { console.error(`Error in 'uptime' command: ${error}`); });
 			},
 		},
 		{
