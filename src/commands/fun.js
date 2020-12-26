@@ -35,7 +35,7 @@ module.exports = {
 				} else {
 					iq = userData.get('iq');
 				}
-				message.channel.send(`<@${userID}>'s IQ is ${iq.toFixed(1)}.`);
+				message.channel.send(`<@${userID}>'s IQ is ${iq.toFixed(1)}.`).catch(error => { console.error(`Error in 'iq' command: ${error}`); });
 			},
 		},
 		{
@@ -45,7 +45,8 @@ module.exports = {
 			aliases: ['icon', 'pfp'],
 			execute(message) {
 				if (!message.mentions.users.size) {
-					return message.channel.send(`Your avatar: <${message.author.displayAvatarURL({ format: 'png', dynamic: true })}>`);
+					return message.channel.send(`Your avatar: <${message.author.displayAvatarURL({ format: 'png', dynamic: true })}>`)
+						.catch(error => { console.error(`Error in 'avatar' command: ${error}`); });
 				}
 
 				const avatarList = message.mentions.users.map(user => {
@@ -53,7 +54,7 @@ module.exports = {
 				});
 				// send the entire array of strings as a message
 				// by default, discord.js will `.join()` the array with `\n`
-				message.channel.send(avatarList);
+				message.channel.send(avatarList).catch(error => { console.error(`Error in 'avatar' command: ${error}`); });
 			},
 		},
 		{
@@ -83,7 +84,7 @@ module.exports = {
 				} else {
 					response = responseData.get(question);
 				}
-				message.channel.send(response);
+				message.channel.send(response).catch(error => { console.error(`Error in '8ball' command: ${error}`); });
 			},
 		},
 	],

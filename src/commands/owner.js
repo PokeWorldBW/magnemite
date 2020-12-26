@@ -35,7 +35,7 @@ module.exports = {
 					return message.reply('you need to provide me with something to say!');
 				}
 				message.delete();
-				message.channel.send(msg);
+				message.channel.send(msg).catch(error => { console.error(`Error in 'say' command: ${error}`); });
 			},
 		},
 		{
@@ -45,10 +45,10 @@ module.exports = {
 			execute(message, args, client) {
 				if (client.bot.shuttingDown) {
 					client.bot.shuttingDown = false;
-					message.channel.send('Cancelled shutdown preparations.');
+					message.channel.send('Cancelled shutdown preparations.').catch(error => { console.error(`Error in 'shutdown' command: ${error}`); });
 				} else {
 					client.bot.shuttingDown = true;
-					message.channel.send('Beginning shutdown preparations!');
+					message.channel.send('Beginning shutdown preparations!').catch(error => { console.error(`Error in 'shutdown' command: ${error}`); });
 					// TO-DO: Print out active activity sessions
 				}
 			},
@@ -73,7 +73,7 @@ module.exports = {
 			execute(message, args, client) {
 				const image = Utilities.combineArgs(args).toLowerCase();
 				if (Object.prototype.hasOwnProperty.call(client.bot.settings.avatars, image)) {
-					client.user.setAvatar(client.bot.settings.avatars[image]).catch(console.error);
+					client.user.setAvatar(client.bot.settings.avatars[image]).catch(error => { console.error(`Error in 'setavatar' command: ${error}`); });
 				} else {
 					message.reply('I couldn\'t find that image.');
 				}
@@ -130,7 +130,42 @@ module.exports = {
 					}
 				}
 
-				message.channel.send(`Announce to \`${channelToSend.guild}\`#\`${channelToSend.name}\` at \`${time.format('dddd MM/DD/YYYY hh:mm [[UTC]]')}\`:\n\`\`\`\n${messageToSend}\n\`\`\``);
+				message.channel.send(`Announce to \`${channelToSend.guild}\`#\`${channelToSend.name}\` at \`${time.format('dddd MM/DD/YYYY hh:mm [[UTC]]')}\`:\n\`\`\`\n${messageToSend}\n\`\`\``)
+					.catch(error => { console.error(`Error in 'announce' command: ${error}`); });
+			},
+		},
+		{
+			name: 'senddm',
+			description: 'Sends a Direct Message to someone',
+			help: 'Type `${this.prefix}${this.command} [userId] [message]`',
+			execute(message, args, client, props) {
+				if (args.length < 2) {
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [userId] [message]\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+				}
+				const userId = args[0];
+				const msg = Utilities.combineArgs(args.slice(1));
+				if (msg == null) {
+					return message.reply('you need to provide me with something to say!').catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+				}
+				client.users.fetch(userId).then(user => {
+					if (user.dmChannel == null) {
+						user.createDM().then(dm => dm.send(msg).then(() => {
+							message.channel.send(`Sent a Direct Message to \`${user.tag}\`:\n\`\`\`${msg}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+						}))
+							.catch(err => {
+								message.channel.send(`Couldn't send a Direct Message to \`${user.tag}\`:\n\`\`\`${err}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+							});
+					} else {
+						user.dmChannel.send(msg)
+							.then(() => {
+								message.channel.send(`Sent a Direct Message to \`${user.tag}\`:\n\`\`\`${msg}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+							})
+							.catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+					}
+				})
+					.catch((err) => {
+						message.channel.send(`Error finding user \`${userId}\`:\n\`\`\`${err}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+					});
 			},
 		},
 	],

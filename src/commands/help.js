@@ -6,7 +6,7 @@ module.exports = {
 			description: 'Displays additional help information about a command',
 			help: 'Type `${this.prefix}${this.command} [command]` to learn more about how to use that command',
 			execute(message) {
-				message.channel.send('help is on the way!');
+				message.channel.send('help is on the way!').catch(error => { console.error(`Error in 'help' command: ${error}`); });
 			},
 		},
 		{
@@ -15,7 +15,7 @@ module.exports = {
 			help: 'Type `${this.prefix}${this.command}` or `${this.prefix}${this.command} [type]` to see the different commands',
 			aliases: ['commandlist', 'commandslist'],
 			execute(message) {
-				message.channel.send('help is on the way!');
+				message.channel.send('help is on the way!').catch(console.error);
 			},
 		},
 	],

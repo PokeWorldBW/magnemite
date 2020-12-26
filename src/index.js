@@ -14,7 +14,6 @@ if (process.env._ == '/app/.heroku/node/bin/npm') {
 		logChannel: process.env.LOG_CHANNEL,
 		ownerId: process.env.OWNER_ID,
 		blockedRoles: process.env.BLOCKED_ROLES.split('|'),
-		evalMessage: process.env.EVAL_MESSAGE,
 	};
 	credentials = {
 		discord_token: process.env.TOKEN,
@@ -82,9 +81,9 @@ function changeRandomColorRole(color, serverId, roleId) {
 						role.setColor(color);
 					}
 				})
-				.catch(console.error);
+				.catch(error => { console.error(`Error with fetching role ${roleId} in changeRandomColorRole: ${error}`); });
 		})
-		.catch(console.error);
+		.catch(error => { console.error(`Error with fetching server ${serverId} in changeRandomColorRole: ${error}`); });
 }
 
 function updateRandomColorRoles() {
@@ -92,6 +91,14 @@ function updateRandomColorRoles() {
 	for (let i = 0; i < config.randomColorGuilds.length; i++) {
 		changeRandomColorRole(color, config.randomColorGuilds[i], config.randomColorRoles[i]);
 	}
+}
+
+// Stolen from https://stackoverflow.com/questions/17581830/load-node-js-module-from-string-in-memory/17585470#17585470
+function requireFromString(src) {
+	const Module = module.constructor;
+	const m = new Module();
+	m._compile(src, '');
+	return m.exports;
 }
 
 // When the client is ready, run this code
@@ -109,10 +116,23 @@ client.once('ready', () => {
 	client.channels.cache.get(config.dataChannel).messages.fetch()
 		.then(messages => {
 			messages.forEach(message => {
-				if (message.id == config.evalMessage) {
-					eval(message.content.substring(14, message.content.length - 4));
+				const delimiter = message.content.indexOf(':\n');
+				const name = message.content.substring(0, delimiter);
+				if (name == 'ADDITIONAL_EVENTS') {
+					const eventListeners = requireFromString(message.content.substring(delimiter + 16, message.content.length - 4)).eventListeners;
+					for (let i = 0; i < eventListeners.length; i++) {
+						const listener = eventListeners[i];
+						client.on(listener.event, (...args) => {
+							const response = listener.listen(...args);
+							if (response != null) {
+								client.channels.cache.get(config.logChannel).send(response)
+									.catch(error => { console.error(`Error with sending message in '${listener.event}' event listener: ${error}`); });
+							}
+						});
+					}
+					// eval(message.content.substring(14, message.content.length - 4));
 				} else {
-					const storage = new Utilities.Storage(client, null, message);
+					const storage = new Utilities.Storage(client, name, message);
 					client.data.set(storage.name, storage);
 
 					if (storage.name == 'ANNOUNCEMENTS') {
@@ -141,7 +161,7 @@ client.once('ready', () => {
 				}
 			}
 		})
-		.catch(console.error);
+		.catch(error => { console.error(`Error with setting up data storage: ${error}`); });
 });
 
 client.on('message', message => {
@@ -169,19 +189,20 @@ client.on('message', message => {
 				const props = { command: commandName, prefix: prefix };
 				client.plugins.get(pluginName).get(commandName).execute(message, args, client, props);
 			} catch (error) {
-				console.error(error);
 				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.cleanContent}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
-				client.channels.cache.get(config.debugChannel).send(errorMessage);
+				console.error(errorMessage);
+				client.channels.cache.get(config.debugChannel).send(errorMessage).catch(err => { console.error(`Error with sending debug message: ${err}`); });
 				message.reply('there was an error trying to execute that command!');
 			}
 		}
 	}
 	// Log DMs in case people are privately abusing the bot
-	if (message.channel.type == 'dm') {
+	if (message.channel.type == 'dm' && message.author.id != client.user.id) {
 		const content = message.content.length > 0 ? `\`\`\`\n${message.content}\`\`\`` : '';
 		const attachments = message.attachments.map(a => `<${a.attachment}>`).join('\n');
 		const attachMessage = attachments.length > 0 ? `\`Attachments:\`\n${attachments}` : '';
-		client.channels.cache.get(config.logChannel).send(`Direct Message from \`${message.author.tag}\`:\n${content}${attachMessage}`);
+		client.channels.cache.get(config.logChannel).send(`Direct Message from \`${message.author.tag}\`:\n${content}${attachMessage}`)
+			.catch(error => { console.error(`Error with logging DM: ${error}`); });
 	}
 });
 

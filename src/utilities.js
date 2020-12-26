@@ -9,12 +9,12 @@ class Storage {
 			return;
 		}
 		const content = message.content;
-		const i = content.indexOf(':\n');
+		const delimiter = content.indexOf(':\n');
 		if (name == null) {
-			this.name = content.substring(0, i);
+			this.name = content.substring(0, delimiter);
 		}
 		// Remove first and last 3 characters because they will be ```
-		this.data = JSON.parse(content.substring(i + 5, content.length - 3));
+		this.data = JSON.parse(content.substring(delimiter + 5, content.length - 3));
 	}
 
 	has(key) {
@@ -65,7 +65,8 @@ module.exports = {
 	async buildStorage(client, channel, name) {
 		const record = `${name}:\n\`\`\`{}\`\`\``;
 		let message;
-		await channel.send(record).then(m => { message = m; }).catch(console.error);
+		await channel.send(record).then(m => { message = m; })
+			.catch(error => { console.error(`Error in Utilities.buildStorage: ${error}`); });
 		return new Storage(client, name, message);
 	},
 	// Overwrite all previous data
@@ -130,6 +131,6 @@ module.exports = {
 	},
 	// Sends a message to a channel
 	sendMessage(channel, message) {
-		channel.send(message);
+		channel.send(message).catch(error => { console.error(`Error sending message: ${error}`); });
 	},
 };
