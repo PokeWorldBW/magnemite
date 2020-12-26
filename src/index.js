@@ -118,7 +118,9 @@ client.once('ready', () => {
 
 	client.channels.fetch(config.dataChannel).then(channel => {
 		channel.messages.fetch().then(messages => {
+			console.log(messages.length);
 			messages.forEach(message => {
+				console.log(message.content);
 				const delimiter = message.content.indexOf(':\n');
 				const name = message.content.substring(0, delimiter);
 				if (name == 'ADDITIONAL_EVENTS') {
@@ -136,6 +138,7 @@ client.once('ready', () => {
 				} else {
 					const storage = new Utilities.Storage(client, name, message);
 					client.data.set(storage.name, storage);
+					console.log('setting ' + storage.name);
 
 					if (storage.name == 'ANNOUNCEMENTS') {
 						if (storage.has('announcements')) {
@@ -152,17 +155,16 @@ client.once('ready', () => {
 					}
 				}
 			});
-		})
-			.then(() => {
-				for (let i = 0; i < dataStorage.length; i++) {
-					const s = dataStorage[i];
-					if (!client.data.has(s)) {
-						Utilities.buildStorage(client, client.channels.cache.get(config.dataChannel), s).then(storage => {
-							client.data.set(storage.name, storage);
-						});
-					}
+			console.log('creating storages that weren\'t found');
+			for (let i = 0; i < dataStorage.length; i++) {
+				const s = dataStorage[i];
+				if (!client.data.has(s)) {
+					Utilities.buildStorage(client, client.channels.cache.get(config.dataChannel), s).then(storage => {
+						client.data.set(storage.name, storage);
+					});
 				}
-			})
+			}
+		})
 			.catch(error => { console.error(`Error with setting up data storage: ${error}`); });
 	})
 		.catch(error => { console.error(`Error with setting up data storage: ${error}`); });
