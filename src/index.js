@@ -116,7 +116,7 @@ client.once('ready', () => {
 	// Check every hour
 	setInterval(updateRandomColorRoles, 3600000);
 
-	client.channels.fetch(config.dataChannel).then(channel => {
+	client.channels.fetch(config.dataChannel, true, true).then(channel => {
 		console.log(channel.id);
 		channel.messages.fetch({}, true, true).then(messages => {
 			console.log(messages);
