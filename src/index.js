@@ -64,11 +64,16 @@ client.responseCache = new Map();
 client.data = new Map();
 client.sessions = new Map();
 
-client.cooldowns = {
+client.announcements = {
+	timeouts: new Map(),
+	lastId: 0,
+};
+
+/* client.cooldowns = {
 	users: new Map(),
 	channels: new Map(),
 	// servers: new Map(),
-};
+}; */
 
 const ColorHash = require('color-hash');
 const colorHash = new ColorHash();
@@ -140,13 +145,22 @@ client.once('ready', () => {
 					if (storage.name == 'ANNOUNCEMENTS') {
 						if (storage.has('announcements')) {
 							const announcements = storage.get('announcements');
+							const pendingAnnouncements = [];
 							const now = (new Date()).getTime();
 							for (let i = 0; i < announcements.length; i++) {
-								const { channelId, timeToSend, messageToSend } = announcements[i];
+								const announcement = announcements[i];
+								const { channelId, timeToSend, messageToSend } = announcement;
 								const channelToSend = client.channels.cache.get(channelId);
 								if (timeToSend >= now) {
-									setTimeout(Utilities.sendMessage, timeToSend - now, channelToSend, messageToSend);
+									const id = ++client.announcements.lastId;
+									announcement.id = id;
+									client.announcements.timeouts.set(id, setTimeout(Utilities.sendMessage, timeToSend - now, channelToSend, messageToSend));
+									pendingAnnouncements.push(announcement);
 								}
+							}
+							if (pendingAnnouncements.length != announcements.length) {
+								// Overwrite announcement data
+								storage.add('announcements', pendingAnnouncements);
 							}
 						}
 					}

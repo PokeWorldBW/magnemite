@@ -1,3 +1,5 @@
+const Utilities = require('../utilities.js');
+
 module.exports = {
 	name: 'info',
 	commands: [
@@ -15,8 +17,8 @@ module.exports = {
 			help: 'Type `${this.prefix}${this.command}`',
 			execute(message, args, client) {
 				const now = (new Date()).getTime();
-				const uptime = Math.floor((now - client.bot.uptime) / 1000);
-				message.channel.send(`Bot has been running for \`${uptime}\``).catch(error => { console.error(`Error in 'uptime' command: ${error}`); });
+				const uptime = Utilities.getTimeString(Math.floor((now - client.bot.uptime) / 1000));
+				message.channel.send(`Current uptime: \`${uptime}\``).catch(error => { console.error(`Error in 'uptime' command: ${error}`); });
 			},
 		},
 		{

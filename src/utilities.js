@@ -79,10 +79,21 @@ module.exports = {
 			const storage = client.data.get('ANNOUNCEMENTS');
 			if (storage.has('announcements')) {
 				const announcements = storage.get('announcements');
-				const now = (new Date()).getTime();
-				const newAnnouncements = announcements.filter(announcement => announcement.timeToSend > now);
-				if (announcements.length != newAnnouncements.length) {
-					storage.add('announcements', newAnnouncements);
+				if (announcements.length > 0) {
+					const now = (new Date()).getTime();
+					const pendingAnnouncements = [];
+					for (let i = 0; i < announcements.length; i++) {
+						const announcement = announcements[i];
+						const { timeToSend, id } = announcement;
+						if (timeToSend > now) {
+							pendingAnnouncements.push(announcement);
+						} else if (client.announcements.timeouts.has(id)) {
+							client.announcements.timeouts.delete(id);
+						}
+					}
+					if (announcements.length != pendingAnnouncements.length) {
+						storage.add('announcements', pendingAnnouncements);
+					}
 				}
 			}
 		}
@@ -132,5 +143,25 @@ module.exports = {
 	// Sends a message to a channel
 	sendMessage(channel, message) {
 		channel.send(message).catch(error => { console.error(`Error sending message: ${error}`); });
+	},
+	// Converts a given number of seconds into a readable string
+	getTimeString : function(seconds) {
+		const timeIntervals = [['week', 7 * 24 * 60 * 60], ['day', 24 * 60 * 60], ['hour', 60 * 60], ['minute', 60]];
+		const timeString = [];
+		let num, interval, intervalName;
+		for (let i = 0; i < timeIntervals.length; i++) {
+			interval = timeIntervals[i];
+			num = parseInt(seconds / interval[1], 10);
+			if (num > 0) {
+				intervalName = interval[0] + (num > 1 ? 's' : '');
+				timeString.push(`${num} ${intervalName}`);
+				seconds -= num * interval[1];
+			}
+		}
+		if (timeString.length < 2 && seconds > 0) {
+			intervalName = 'second' + (seconds > 1 ? 's' : '');
+			timeString.push(`${seconds} ${intervalName}`);
+		}
+		return timeString.join(', ');
 	},
 };

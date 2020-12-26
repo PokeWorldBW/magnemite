@@ -96,7 +96,7 @@ module.exports = {
 				if (moment.tz.names().map(zone => zone.toLowerCase()).indexOf(args[2].toLowerCase()) == -1) {
 					return message.reply(`couldn't find a time zone called \`${args[2]}\`\nCheck <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> for a list of valid time zones`);
 				}
-				const time = moment.tz(args[1], args[2]).utc();
+				const time = moment.tz(args[1], moment.ISO_8601, true, args[2]).utc();
 				if (!time.isValid()) {
 					return message.reply('correct time format is [year]-[month]-[day]T[hour]:[minute]');
 				}
@@ -112,18 +112,20 @@ module.exports = {
 				const channelToSend = client.channels.cache.get(channelId);
 				const timeToSend = time.toDate().getTime();
 				const timeUntilSend = timeToSend - (new Date).getTime();
-				setTimeout(Utilities.sendMessage, timeUntilSend, channelToSend, messageToSend);
+				const id = ++client.announcements.lastId;
+				client.announcements.timeouts.set(id, setTimeout(Utilities.sendMessage, timeUntilSend, channelToSend, messageToSend));
 
 				const announcement = {
 					channelId: channelId,
 					timeToSend: timeToSend,
 					messageToSend: messageToSend,
+					id: id,
 				};
 				if (client.data.has('ANNOUNCEMENTS')) {
 					const storage = client.data.get('ANNOUNCEMENTS');
 					if (storage.has('announcements')) {
 						const announcements = storage.get('announcements');
-						announcements.push({ channelId: channelId, timeToSend: timeToSend, messageToSend: messageToSend });
+						announcements.push(announcement);
 						storage.add('announcements', announcements);
 					} else {
 						storage.add('announcements', [ announcement ]);
@@ -132,6 +134,84 @@ module.exports = {
 
 				message.channel.send(`Announce to \`${channelToSend.guild}\`#\`${channelToSend.name}\` at \`${time.format('dddd MM/DD/YYYY hh:mm [[UTC]]')}\`:\n\`\`\`\n${messageToSend}\n\`\`\``)
 					.catch(error => { console.error(`Error in 'announce' command: ${error}`); });
+			},
+		},
+		{
+			name: 'announcements',
+			description: 'Lists the announcements that still need to be made',
+			help: 'Type `${this.prefix}${this.command}`',
+			execute(message, args, client) {
+				if (client.data.has('ANNOUNCEMENTS')) {
+					const storage = client.data.get('ANNOUNCEMENTS');
+					if (storage.has('announcements')) {
+						const announcements = storage.get('announcements');
+						if (announcements.length > 0) {
+							const list = announcements.map(announcement => {
+								const channel = client.channels.cache.get(announcement.channelId);
+								const channelName = `\`${channel.guild}\`#\`${channel.name}\``;
+								const time = moment.utc(announcement.timeToSend).format('dddd MM/DD/YYYY hh:mm [[UTC]]');
+								let msg = announcement.messageToSend;
+								if (msg.length > 70) {
+									msg = msg.substring(0, 70) + '...';
+								}
+								return `${announcement.id}) To ${channelName} on \`${time}\`:\n\`${msg}\``;
+							}).join('\n');
+							return message.channel.send(`Announcements:\n${list}`).catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+						}
+					}
+					message.channel.send('There are no pending announcements!').catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+				} else {
+					message.reply('no announcement data was found!').catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+				}
+			},
+		},
+		{
+			name: 'cancelannouncement',
+			description: 'Cancels a pending announcement',
+			help: 'Type `${this.prefix}${this.command} [announcementNumber]`',
+			execute(message, args, client, props) {
+				if (args.length != 1) {
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [announcementNumber]\nGet announcementNumber with ${props.prefix}announcements\``)
+						.catch(error => { console.error(`Error with 'cancelannouncement' command: ${error}`); });
+				}
+				const id = parseInt(args[0], 10);
+				if (isNaN(id)) {
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [announcementNumber]\nGet announcementNumber with ${props.prefix}announcements\``)
+						.catch(error => { console.error(`Error with 'cancelannouncement' command: ${error}`); });
+				}
+				if (client.data.has('ANNOUNCEMENTS')) {
+					const storage = client.data.get('ANNOUNCEMENTS');
+					if (storage.has('announcements')) {
+						const announcements = storage.get('announcements');
+						let announcement = null;
+						let index;
+						for (index = 0; index < announcements.length; index++) {
+							if (announcements[index].id == id) {
+								announcement = announcements[index];
+								break;
+							}
+						}
+						if (announcement != null) {
+							const { channelId, timeToSend, messageToSend } = announcement;
+							if (client.announcements.timeouts.has(id)) {
+								const timeout = client.announcements.timeouts.get(id);
+								clearTimeout(timeout);
+								client.announcements.timeouts.delete(id);
+								announcements.splice(index, 1);
+								storage.add('announcements', announcements);
+								const channel = client.channels.cache.get(channelId);
+								const channelName = `\`${channel.guild}\`#\`${channel.name}\``;
+								const time = moment.utc(timeToSend).format('dddd MM/DD/YYYY hh:mm [[UTC]]');
+								return message.channel.send(`Canceled **Announcement #${id}** to ${channelName} on \`${time}\`:\n\`\`\`${messageToSend}\`\`\``).catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+							} else {
+								return message.channel.send(`No timeout was set for Announcement #${id}`).catch(error => { console.error(`Error in 'cancelannouncement' command: ${error}`); });
+							}
+						}
+					}
+					message.channel.send(`No announcement with id '${id}' found`).catch(error => { console.error(`Error in 'cancelannouncement' command: ${error}`); });
+				} else {
+					message.reply('no announcement data was found!').catch(error => { console.error(`Error in 'cancelannouncement' command: ${error}`); });
+				}
 			},
 		},
 		{
