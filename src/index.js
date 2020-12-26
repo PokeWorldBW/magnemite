@@ -116,9 +116,8 @@ client.once('ready', () => {
 	// Check every hour
 	setInterval(updateRandomColorRoles, 3600000);
 
-	client.channels.cache.get(config.dataChannel).messages.fetch()
-		.then(messages => {
-			console.log(messages.length);
+	client.channels.fetch(config.dataChannel).then(channel => {
+		channel.messages.fetch().then(messages => {
 			messages.forEach(message => {
 				const delimiter = message.content.indexOf(':\n');
 				const name = message.content.substring(0, delimiter);
@@ -154,16 +153,18 @@ client.once('ready', () => {
 				}
 			});
 		})
-		.then(() => {
-			for (let i = 0; i < dataStorage.length; i++) {
-				const s = dataStorage[i];
-				if (!client.data.has(s)) {
-					Utilities.buildStorage(client, client.channels.cache.get(config.dataChannel), s).then(storage => {
-						client.data.set(storage.name, storage);
-					});
+			.then(() => {
+				for (let i = 0; i < dataStorage.length; i++) {
+					const s = dataStorage[i];
+					if (!client.data.has(s)) {
+						Utilities.buildStorage(client, client.channels.cache.get(config.dataChannel), s).then(storage => {
+							client.data.set(storage.name, storage);
+						});
+					}
 				}
-			}
-		})
+			})
+			.catch(error => { console.error(`Error with setting up data storage: ${error}`); });
+	})
 		.catch(error => { console.error(`Error with setting up data storage: ${error}`); });
 });
 
