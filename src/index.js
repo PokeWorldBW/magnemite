@@ -118,9 +118,9 @@ client.once('ready', () => {
 
 	client.channels.fetch(config.dataChannel).then(channel => {
 		console.log(channel.id);
-		channel.messages.fetch().then(messages => {
+		channel.messages.fetch({}, true, true).then(messages => {
 			console.log(messages);
-			console.log(messages.length);
+			console.log(messages.size);
 			messages.forEach(message => {
 				console.log(message.content);
 				const delimiter = message.content.indexOf(':\n');
