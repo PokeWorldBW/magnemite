@@ -38,9 +38,23 @@ module.exports = {
 									const emoji = emojis[i];
 									output.push(`${emoji.emoji} - ${emoji.count}`);
 								}
-								for (let n = 0; n < output.length; n += 50) {
-									message.channel.send(output.slice(n, Math.min(n + 50, output.length)))
+								let out = [output[0]], mess, temp;
+								for (let n = 1; n < output.length; n += 50) {
+									mess = output.slice(n, Math.min(n + 50, output.length));
+									for (let x = 0; x < mess.length; x += 5) {
+										temp = [];
+										for (let y = 0; y < 5; y++) {
+											if (x + y < mess.length) {
+												temp.push(mess[x + y]);
+											} else {
+												break;
+											}
+										}
+										out.push(temp.join(' | '));
+									}
+									message.channel.send(out)
 										.catch(error => { console.error(`Error in 'emojiusage' command: ${error}`); });
+									out = [];
 								}
 							})
 							.catch(error => { console.error(`Error fetching main server in 'emojiusage' command: ${error}`); });
