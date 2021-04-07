@@ -9,7 +9,8 @@
 		"magneton": "./images/icons/magneton_pmd.png",
 		"magnezone": "./images/icons/magnezone_pmd.png"
 	},
-	"dataStorage": ["ANNOUNCEMENTS"],
+	"dataStorage": ["ANNOUNCEMENTS", "LAST_MONTH_REACTIONS", "CURRENT_MONTH_REACTIONS"],
 	"resetVarInterval": 600000,
-	"status": ""
+	"status": "",
+	"timeZone": "America/New_York"
 }

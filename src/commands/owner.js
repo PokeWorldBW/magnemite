@@ -248,5 +248,13 @@ module.exports = {
 					});
 			},
 		},
+		{
+			name: 'test',
+			description: 'Test command',
+			help: 'Type `${this.prefix}${this.command}`',
+			execute(message) {
+				message.channel.send('test').catch(error => { console.error(`Error with 'test' command: ${error}`); });
+			},
+		},
 	],
 };
