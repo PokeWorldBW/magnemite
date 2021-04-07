@@ -38,8 +38,10 @@ module.exports = {
 									const emoji = emojis[i];
 									output.push(`${emoji.emoji} - ${emoji.count}`);
 								}
-								console.log('output.join(\'\n\').length: ' + output.join('\n').length);
-								message.channel.send(output).catch(error => { console.error(`Error in 'emojiusage' command: ${error}`); });
+								for (let n = 0; n < output.length; n += 50) {
+									message.channel.send(output.slice(n, Math.min(n + 50, output.length)))
+										.catch(error => { console.error(`Error in 'emojiusage' command: ${error}`); });
+								}
 							})
 							.catch(error => { console.error(`Error fetching main server in 'emojiusage' command: ${error}`); });
 					}
