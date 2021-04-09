@@ -98,11 +98,8 @@ function changeRandomColorRole(color, serverId, roleId) {
 
 function runHourlyChecks() {
 	const time = moment().tz(timeZone);
-	console.log('running hourly check');
-	console.log(time.format());
 	if (time.hours() == 0) {
-		const color = colorHash.hex(time.format('YYYY MM DD'));
-		console.log('color is ' + color);
+		const color = colorHash.hex(time.format('MM DD YYYY'));
 		changeRandomColorRole(color, config.mainServer, config.randomColorRole);
 		if (time.date() == 1) {
 			if (client.data.has('CURRENT_MONTH_REACTIONS') && client.data.has('LAST_MONTH_REACTIONS')) {
