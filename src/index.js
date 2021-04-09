@@ -96,36 +96,34 @@ function changeRandomColorRole(color, serverId, roleId) {
 		.catch(error => { console.error(`Error with fetching server ${serverId} in changeRandomColorRole: ${error}`); });
 }
 
-function runHourlyChecks() {
+function runDailyChecks() {
 	const time = moment().tz(timeZone);
-	if (time.hours() == 0) {
-		const color = colorHash.hex(time.format('MM DD YYYY'));
-		changeRandomColorRole(color, config.mainServer, config.randomColorRole);
-		if (time.date() == 1) {
-			if (client.data.has('CURRENT_MONTH_REACTIONS') && client.data.has('LAST_MONTH_REACTIONS')) {
-				const currentMonthReactions = client.data.get('CURRENT_MONTH_REACTIONS');
-				const lastMonthReactions = client.data.get('LAST_MONTH_REACTIONS');
-				lastMonthReactions.setRawData(currentMonthReactions.getRawData());
-				currentMonthReactions.clear();
-				if (client.commands.has('emojiusage')) {
-					const { pluginName, commandName } = client.commands.get('emojiusage');
-					client.channels.cache.get(config.emojiReportChannel).messages.fetch({ limit: 1 }).then(messages => {
-						if (messages.size > 0) {
-							client.plugins.get(pluginName).get(commandName).execute(messages.first(), ['last'], client, null);
-						} else {
-							console.log('Failed to get a message from the emojiReportChannel, so couldn\'t print monthly emojiusage stats');
-						}
-					});
-				}
+	const color = colorHash.hex(time.format('MM DD YYYY'));
+	changeRandomColorRole(color, config.mainServer, config.randomColorRole);
+	if (time.date() == 1) {
+		if (client.data.has('CURRENT_MONTH_REACTIONS') && client.data.has('LAST_MONTH_REACTIONS')) {
+			const currentMonthReactions = client.data.get('CURRENT_MONTH_REACTIONS');
+			const lastMonthReactions = client.data.get('LAST_MONTH_REACTIONS');
+			lastMonthReactions.setRawData(currentMonthReactions.getRawData());
+			currentMonthReactions.clear();
+			if (client.commands.has('emojiusage')) {
+				const { pluginName, commandName } = client.commands.get('emojiusage');
+				client.channels.cache.get(config.emojiReportChannel).messages.fetch({ limit: 1 }).then(messages => {
+					if (messages.size > 0) {
+						client.plugins.get(pluginName).get(commandName).execute(messages.first(), ['last'], client, null);
+					} else {
+						console.log('Failed to get a message from the emojiReportChannel, so couldn\'t print monthly emojiusage stats');
+					}
+				});
 			}
 		}
 	}
 }
 
-function startHourlyChecks() {
-	runHourlyChecks();
-	// 3600000 ms in an hour
-	setInterval(runHourlyChecks, 3600000);
+function startDailyChecks() {
+	// 86400000 ms in a day
+	setInterval(runDailyChecks, 86400000);
+	runDailyChecks();
 }
 
 // Stolen from https://stackoverflow.com/questions/17581830/load-node-js-module-from-string-in-memory/17585470#17585470
@@ -148,8 +146,8 @@ client.once('ready', () => {
 	setInterval(Utilities.resetVariables, resetVarInterval, client);
 
 	const time = moment.utc();
-	const nextHour = moment.utc().startOf('hour').hour(time.hours() + 1);
-	setTimeout(startHourlyChecks, nextHour.valueOf() - time.valueOf());
+	const nextDay = moment.utc().startOf('day').day(time.days() + 1);
+	setTimeout(startDailyChecks, nextDay.valueOf() - time.valueOf());
 
 	client.channels.cache.get(config.dataChannel).messages.fetch()
 		.then(messages => {
