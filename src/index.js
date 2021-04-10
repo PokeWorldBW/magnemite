@@ -97,6 +97,7 @@ function changeRandomColorRole(color, serverId, roleId) {
 }
 
 function runDailyChecks() {
+	console.log('running daily check');
 	const time = moment().tz(timeZone);
 	const color = colorHash.hex(time.format('MM DD YYYY'));
 	changeRandomColorRole(color, config.mainServer, config.randomColorRole);
@@ -147,6 +148,9 @@ client.once('ready', () => {
 
 	const time = moment().tz(timeZone);
 	const nextDay = time.startOf('day').day(time.days() + 1);
+	console.log(time);
+	console.log(nextDay);
+	console.log(nextDay.valueOf() - time.valueOf());
 	setTimeout(startDailyChecks, nextDay.valueOf() - time.valueOf());
 
 	client.channels.cache.get(config.dataChannel).messages.fetch()
