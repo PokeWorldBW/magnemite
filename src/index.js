@@ -145,8 +145,8 @@ client.once('ready', () => {
 
 	setInterval(Utilities.resetVariables, resetVarInterval, client);
 
-	const time = moment.utc();
-	const nextDay = moment.utc().startOf('day').day(time.days() + 1);
+	const time = moment().tz(timeZone);
+	const nextDay = time.startOf('day').day(time.days() + 1);
 	setTimeout(startDailyChecks, nextDay.valueOf() - time.valueOf());
 
 	client.channels.cache.get(config.dataChannel).messages.fetch()
