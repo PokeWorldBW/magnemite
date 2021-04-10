@@ -147,7 +147,7 @@ client.once('ready', () => {
 	setInterval(Utilities.resetVariables, resetVarInterval, client);
 
 	const time = moment().tz(timeZone);
-	const nextDay = time.startOf('day').day(time.days() + 1);
+	const nextDay = moment().tz(timeZone).startOf('day').day(time.days() + 1);
 	console.log(time);
 	console.log(nextDay);
 	console.log(nextDay.valueOf() - time.valueOf());
