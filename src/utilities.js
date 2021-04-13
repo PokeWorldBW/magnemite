@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const EMOJI_REGEX = /<a:.+?:(\d+)>|<:.+?:(\d+)>/g;
+const EMOJI_REGEX = /<a?:.+?:(\d+)>/g;
 
 class Storage {
 	constructor(client, name, message) {
