@@ -26,6 +26,10 @@ module.exports = {
 			description: 'Shows information about the server or the user',
 			help: 'Type `${this.prefix}${this.command} server` or `${this.prefix}${this.command} user` to see information about the server or yourself\nThis cannot be used on other users',
 			execute(message, args, client) {
+				if (args.length == 0) {
+					message.channel.send(this.help);
+					return;
+				}
 				const data = args[0].toLowerCase();
 				switch (data) {
 				case 'server':
