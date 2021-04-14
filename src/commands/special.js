@@ -62,5 +62,27 @@ module.exports = {
 				}
 			},
 		},
+		{
+			name: 'setemojiusage',
+			description: 'Sets the usage count of a custom emoji shown by emojiusage',
+			help: 'Type `${this.prefix}${this.command} [emojis] [count]` to set the usage of an emoji',
+			permissions: 'MANAGE_EMOJIS',
+			execute(message, args, client) {
+				if (Utilities.isMainServer(client, message.guild.id) && client.user.id != message.author.id && client.data.has('CURRENT_MONTH_REACTIONS')) {
+					const emojiIds = Utilities.getEmojiIds(args[0]);
+					const count = parseInt(args[1]);
+					if (isNaN(count)) {
+						message.channel.send(`\`${args[1]}\` is not a number.`);
+					}
+					if (emojiIds.length > 0) {
+						const storage = client.data.get('CURRENT_MONTH_REACTIONS');
+						emojiIds.forEach(emojiId => {
+							const compressedId = Utilities.compress(emojiId);
+							storage.add(compressedId, count);
+						});
+					}
+				}
+			}
+		}
 	],
 };

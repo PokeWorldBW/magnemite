@@ -240,6 +240,12 @@ client.on('message', message => {
 				if (pluginName == 'special' && !Utilities.isMainServer(client, message.guild.id)) {
 					return;
 				}
+				if (commandName.permissions) {
+					const authorPerms = message.channel.permissionsFor(message.author);
+					if (!authorPerms || !authorPerms.has(commandName.permissions)) {
+						return;
+					}
+				}
 				const props = { command: commandName, prefix: prefix };
 				client.plugins.get(pluginName).get(commandName).execute(message, args, client, props);
 			} catch (error) {
