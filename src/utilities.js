@@ -188,8 +188,8 @@ module.exports = {
 		return client.bot.config.mainServer == guildId;
 	},
 	// Sends a message to a channel
-	sendMessage(channel, message) {
-		channel.send(message).catch(error => { console.error(`Error sending message: ${error}`); });
+	sendMessage(channel, message, client) {
+		channel.send(message).catch(error => { this.handleError(client, 'sending message', error); });
 	},
 	// Converts a given number of seconds into a readable string
 	getTimeString(seconds) {
@@ -229,9 +229,17 @@ module.exports = {
 		}
 	},
 	// Handles errors caught when sending messages and stuff
+	handleError(client, action, error) {
+		const errorMessage = `Error with \`${action}\`: ${error}`;
+		console.error(errorMessage);
+		client.channels.cache.get(client.bot.config.debugChannel).send(errorMessage)
+			.catch(err => { console.error(`Error with sending debug message: ${err}`); });
+	},
+	// Handles errors caught when sending messages for commands and stuff
 	handleCommandError(client, message, command, error) {
 		const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.cleanContent}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
 		console.error(errorMessage);
-		client.channels.cache.get(client.bot.config.debugChannel).send(errorMessage).catch(err => { console.error(`Error with sending debug message: ${err}`); });
+		client.channels.cache.get(client.bot.config.debugChannel).send(errorMessage)
+			.catch(err => { console.error(`Error with sending debug message: ${err}`); });
 	},
 };

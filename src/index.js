@@ -91,9 +91,9 @@ function changeRandomColorRole(color, serverId, roleId) {
 						role.setColor(color);
 					}
 				})
-				.catch(error => { console.error(`Error with fetching role ${roleId} in changeRandomColorRole: ${error}`); });
+				.catch(error => { Utilities.handleError(client, `fetching role ${roleId} in changeRandomColorRole`, error); });
 		})
-		.catch(error => { console.error(`Error with fetching server ${serverId} in changeRandomColorRole: ${error}`); });
+		.catch(error => { Utilities.handleError(client, `fetching server ${serverId} in changeRandomColorRole`, error); });
 }
 
 function runDailyChecks() {
@@ -112,7 +112,9 @@ function runDailyChecks() {
 					if (messages.size > 0) {
 						client.plugins.get(pluginName).get(commandName).execute(messages.first(), ['last'], client, null);
 					} else {
-						console.log('Failed to get a message from the emojiReportChannel, so couldn\'t print monthly emojiusage stats');
+						Utilities.handleError(client,
+							'printing monthly emojiusage stats',
+							'Failed to get a message from the emojiReportChannel');
 					}
 				});
 			}
@@ -176,7 +178,7 @@ client.once('ready', () => {
 								if (timeToSend >= now) {
 									const id = ++client.announcements.lastId;
 									announcement.id = id;
-									client.announcements.timeouts.set(id, setTimeout(Utilities.sendMessage, timeToSend - now, channelToSend, messageToSend));
+									client.announcements.timeouts.set(id, setTimeout(Utilities.sendMessage, timeToSend - now, channelToSend, messageToSend, client));
 									pendingAnnouncements.push(announcement);
 								}
 							}
@@ -197,7 +199,7 @@ client.once('ready', () => {
 				}
 			}
 		})
-		.catch(error => { console.error(`Error with setting up data storage: ${error}`); });
+		.catch(error => { Utilities.handleError(client, 'setting up data storage', error); });
 });
 
 client.on('message', message => {
@@ -261,7 +263,7 @@ client.on('message', message => {
 		const attachments = message.attachments.map(a => `<${a.proxyURL}>`).join('\n');
 		const attachMessage = attachments.length > 0 ? `\`Attachments:\`\n${attachments}` : '';
 		client.channels.cache.get(config.logChannel).send(`Direct Message from \`${message.author.tag}\`:\n${content}${attachMessage}`)
-			.catch(error => { console.error(`Error with logging DM: ${error}`); });
+			.catch(error => { Utilities.handleError(client, 'logging DM', error); });
 	}
 
 	if (client.eventListeners.has('message')) {
@@ -269,7 +271,7 @@ client.on('message', message => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { console.error(`Error with sending message in '${listener.event}' event listener: ${error}`); });
+				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
 		}
 	}
 });
@@ -295,7 +297,7 @@ client.on('messageReactionAdd', messageReaction => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { console.error(`Error with sending message in '${listener.event}' event listener: ${error}`); });
+				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
 		}
 	}
 });
@@ -321,7 +323,7 @@ client.on('messageReactionRemove', messageReaction => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { console.error(`Error with sending message in '${listener.event}' event listener: ${error}`); });
+				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
 		}
 	}
 });
@@ -349,7 +351,7 @@ client.on('messageDelete', message => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { console.error(`Error with sending message in '${listener.event}' event listener: ${error}`); });
+				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
 		}
 	}
 });
@@ -399,7 +401,7 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 		const response = listener(oldMessage, newMessage);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { console.error(`Error with sending message in '${listener.event}' event listener: ${error}`); });
+				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
 		}
 	}
 });
