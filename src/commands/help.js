@@ -1,3 +1,5 @@
+const Utilities = require('../utilities.js');
+
 module.exports = {
 	name: 'help',
 	commands: [
@@ -5,8 +7,9 @@ module.exports = {
 			name: 'help',
 			description: 'Displays additional help information about a command',
 			help: 'Type `${this.prefix}${this.command} [command]` to learn more about how to use that command',
-			execute(message) {
-				message.channel.send('help is on the way!').catch(error => { console.error(`Error in 'help' command: ${error}`); });
+			execute(message, args, client, props) {
+				message.channel.send('help is on the way!')
+					.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 			},
 		},
 		{
@@ -14,8 +17,9 @@ module.exports = {
 			description: 'Lists all commands',
 			help: 'Type `${this.prefix}${this.command}` or `${this.prefix}${this.command} [type]` to see the different commands',
 			aliases: ['commandlist', 'commandslist'],
-			execute(message) {
-				message.channel.send('help is on the way!').catch(console.error);
+			execute(message, args, client, props) {
+				message.channel.send('help is on the way!')
+					.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 			},
 		},
 	],

@@ -232,8 +232,8 @@ client.on('message', message => {
 
 		// Execute if it is a command
 		if (client.commands.has(command)) {
+			const { pluginName, commandName } = client.commands.get(command);
 			try {
-				const { pluginName, commandName } = client.commands.get(command);
 				if (pluginName == 'owner' && !Utilities.isOwner(client, message.author.id)) {
 					return;
 				}
@@ -249,10 +249,8 @@ client.on('message', message => {
 				const props = { command: commandName, prefix: prefix };
 				client.plugins.get(pluginName).get(commandName).execute(message, args, client, props);
 			} catch (error) {
-				const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.cleanContent}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
-				console.error(errorMessage);
-				client.channels.cache.get(config.debugChannel).send(errorMessage).catch(err => { console.error(`Error with sending debug message: ${err}`); });
-				message.reply('there was an error trying to execute that command!');
+				Utilities.handleCommandError(client, message, commandName, error);
+				message.reply('there was an error trying to execute that command!').error(err => console.log(`Error sending command error reply: ${err}`));
 			}
 		}
 	}

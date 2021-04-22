@@ -228,4 +228,10 @@ module.exports = {
 			return [...emojiIds.values()];
 		}
 	},
+	// Handles errors caught when sending messages and stuff
+	handleCommandError(client, message, command, error) {
+		const errorMessage = `Error with \`${command}\` command used by \`${message.author.tag}\` in \`${message.guild.name}\`#\`${message.channel.name}\`:\n\`\`\`\n${message.cleanContent}\n\`\`\`\`\`\`\n${error}\n\`\`\``;
+		console.error(errorMessage);
+		client.channels.cache.get(client.bot.config.debugChannel).send(errorMessage).catch(err => { console.error(`Error with sending debug message: ${err}`); });
+	},
 };

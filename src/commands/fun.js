@@ -10,7 +10,7 @@ module.exports = {
 			name: 'iq',
 			description: 'Tells you your IQ!',
 			help: 'Type `${this.prefix}${this.command}`',
-			execute(message, args, client) {
+			execute(message, args, client, props) {
 				const userID = message.author.id;
 				if (!client.userInfo.has(userID)) {
 					client.userInfo.set(userID, new Discord.Collection());
@@ -35,7 +35,8 @@ module.exports = {
 				} else {
 					iq = userData.get('iq');
 				}
-				message.channel.send(`<@${userID}>'s IQ is ${iq.toFixed(1)}.`).catch(error => { console.error(`Error in 'iq' command: ${error}`); });
+				message.channel.send(`<@${userID}>'s IQ is ${iq.toFixed(1)}.`)
+					.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 			},
 		},
 		{
@@ -43,7 +44,7 @@ module.exports = {
 			description: '',
 			help: 'Type `${this.prefix}${this.command}` to get the link to your own avatar, or `${this.prefix}${this.command} [@user]...` to check another user\'s avatar',
 			aliases: ['icon', 'pfp'],
-			execute(message) {
+			execute(message, args, client, props) {
 				if (!message.mentions.users.size) {
 					return message.channel.send(`Your avatar: <${message.author.displayAvatarURL({ format: 'png', dynamic: true })}>`)
 						.catch(error => { console.error(`Error in 'avatar' command: ${error}`); });
@@ -54,7 +55,8 @@ module.exports = {
 				});
 				// send the entire array of strings as a message
 				// by default, discord.js will `.join()` the array with `\n`
-				message.channel.send(avatarList).catch(error => { console.error(`Error in 'avatar' command: ${error}`); });
+				message.channel.send(avatarList)
+					.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 			},
 		},
 		{
@@ -68,7 +70,8 @@ module.exports = {
 				}
 				const data = Utilities.combineArgs(args);
 				if (data == null) {
-					return message.reply(`you forgot to ask me something! Correct usage is \`${props.prefix}${props.command} [question]\``);
+					return message.reply(`you forgot to ask me something! Correct usage is \`${props.prefix}${props.command} [question]\``)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 				const question = data.replace(/[^A-z0-9]+/g, '').toLowerCase();
 				if (!client.responseCache.has('8ball')) {
@@ -78,13 +81,14 @@ module.exports = {
 				let response;
 				if (!responseData.has(question)) {
 					response = magic8BallAnswers[Utilities.rand(0, magic8BallAnswers.length)];
-					if (response != 'Concentrate and ask again.' && response != 'Reply hazy try again.') {
+					if (!['Concentrate and ask again.', 'Reply hazy try again.'].includes(response)) {
 						responseData.set(question, response);
 					}
 				} else {
 					response = responseData.get(question);
 				}
-				message.channel.send(response).catch(error => { console.error(`Error in '8ball' command: ${error}`); });
+				message.channel.send(response)
+					.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 			},
 		},
 	],

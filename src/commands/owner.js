@@ -29,26 +29,29 @@ module.exports = {
 			name: 'say',
 			description: 'Makes the bot send a message',
 			help: 'Type `${this.prefix}${this.command} [phrase]`',
-			execute(message, args) {
+			execute(message, args, client, props) {
 				const msg = Utilities.combineArgs(args);
 				if (msg == null) {
-					return message.reply('you need to provide me with something to say!');
+					message.reply('you need to provide me with something to say!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
-				message.delete();
-				message.channel.send(msg).catch(error => { console.error(`Error in 'say' command: ${error}`); });
+				message.delete().catch(error => Utilities.handleCommandError(client, message, props.command, error));
+				message.channel.send(msg).catch(error => Utilities.handleCommandError(client, message, props.command, error));
 			},
 		},
 		{
 			name: 'shutdown',
 			description: 'Prepares the bot to shut down by preventing any new activities from being started',
 			help: 'Type `${this.prefix}${this.command}`',
-			execute(message, args, client) {
+			execute(message, args, client, props) {
 				if (client.bot.shuttingDown) {
 					client.bot.shuttingDown = false;
-					message.channel.send('Cancelled shutdown preparations.').catch(error => { console.error(`Error in 'shutdown' command: ${error}`); });
+					message.channel.send('Cancelled shutdown preparations.')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				} else {
 					client.bot.shuttingDown = true;
-					message.channel.send('Beginning shutdown preparations!').catch(error => { console.error(`Error in 'shutdown' command: ${error}`); });
+					message.channel.send('Beginning shutdown preparations!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 					// TO-DO: Print out active activity sessions
 				}
 			},
@@ -70,12 +73,13 @@ module.exports = {
 			name: 'setavatar',
 			description: 'Sets the bot\'s avatar',
 			help: 'Type `${this.prefix}${this.command} [image]`',
-			execute(message, args, client) {
+			execute(message, args, client, props) {
 				const image = Utilities.combineArgs(args).toLowerCase();
 				if (Object.prototype.hasOwnProperty.call(client.bot.settings.avatars, image)) {
 					client.user.setAvatar(client.bot.settings.avatars[image]).catch(error => { console.error(`Error in 'setavatar' command: ${error}`); });
 				} else {
-					message.reply('I couldn\'t find that image.');
+					message.reply('I couldn\'t find that image.')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 			},
 		},
@@ -85,28 +89,34 @@ module.exports = {
 			help: 'Type `${this.prefix}${this.command} [channelId] [time] [timeZone] [message]`',
 			execute(message, args, client, props) {
 				if (args.length < 4) {
-					return message.reply(`correct usage is \`${props.prefix}${props.command} [channelId] [time] [timeZone] [message]\``);
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [channelId] [time] [timeZone] [message]\``)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 
 				const channelId = args[0];
 				if (!client.channels.cache.has(channelId)) {
-					return message.reply(`I am not in channel \`${channelId}\`!`);
+					return message.reply(`I am not in channel \`${channelId}\`!`)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 
 				if (moment.tz.names().map(zone => zone.toLowerCase()).indexOf(args[2].toLowerCase()) == -1) {
-					return message.reply(`couldn't find a time zone called \`${args[2]}\`\nCheck <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> for a list of valid time zones`);
+					return message.reply(`couldn't find a time zone called \`${args[2]}\`\nCheck <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> for a list of valid time zones`)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 				const time = moment.tz(args[1], moment.ISO_8601, true, args[2]).utc();
 				if (!time.isValid()) {
-					return message.reply('correct time format is [year]-[month]-[day]T[hour]:[minute]');
+					return message.reply('correct time format is [year]-[month]-[day]T[hour]:[minute]')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 				if (moment().isAfter(time)) {
-					return message.reply('that time is in the past!');
+					return message.reply('that time is in the past!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 
 				const messageToSend = Utilities.combineArgs(args.slice(3));
 				if (messageToSend == null) {
-					return message.reply('you need to provide me with something to say!');
+					return message.reply('you need to provide me with something to say!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 
 				const channelToSend = client.channels.cache.get(channelId);
@@ -133,14 +143,14 @@ module.exports = {
 				}
 
 				message.channel.send(`Announce to \`${channelToSend.guild}\`#\`${channelToSend.name}\` at \`${time.format('dddd MM/DD/YYYY HH:mm [[UTC]]')}\`:\n\`\`\`\n${messageToSend}\n\`\`\``)
-					.catch(error => { console.error(`Error in 'announce' command: ${error}`); });
+					.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 			},
 		},
 		{
 			name: 'announcements',
 			description: 'Lists the announcements that still need to be made',
 			help: 'Type `${this.prefix}${this.command}`',
-			execute(message, args, client) {
+			execute(message, args, client, props) {
 				if (client.data.has('ANNOUNCEMENTS')) {
 					const storage = client.data.get('ANNOUNCEMENTS');
 					if (storage.has('announcements')) {
@@ -156,12 +166,15 @@ module.exports = {
 								}
 								return `${announcement.id}) To ${channelName} on \`${time}\`:\n\`${msg}\``;
 							}).join('\n');
-							return message.channel.send(`Announcements:\n${list}`).catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+							return message.channel.send(`Announcements:\n${list}`)
+								.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 						}
 					}
-					message.channel.send('There are no pending announcements!').catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+					message.channel.send('There are no pending announcements!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				} else {
-					message.reply('no announcement data was found!').catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+					message.reply('no announcement data was found!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 			},
 		},
@@ -172,12 +185,12 @@ module.exports = {
 			execute(message, args, client, props) {
 				if (args.length != 1) {
 					return message.reply(`correct usage is \`${props.prefix}${props.command} [announcementNumber]\nGet announcementNumber with ${props.prefix}announcements\``)
-						.catch(error => { console.error(`Error with 'cancelannouncement' command: ${error}`); });
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 				const id = parseInt(args[0], 10);
 				if (isNaN(id)) {
 					return message.reply(`correct usage is \`${props.prefix}${props.command} [announcementNumber]\nGet announcementNumber with ${props.prefix}announcements\``)
-						.catch(error => { console.error(`Error with 'cancelannouncement' command: ${error}`); });
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 				if (client.data.has('ANNOUNCEMENTS')) {
 					const storage = client.data.get('ANNOUNCEMENTS');
@@ -202,15 +215,19 @@ module.exports = {
 								const channel = client.channels.cache.get(channelId);
 								const channelName = `\`${channel.guild}\`#\`${channel.name}\``;
 								const time = moment.utc(timeToSend).format('dddd MM/DD/YYYY hh:mm [[UTC]]');
-								return message.channel.send(`Canceled **Announcement #${id}** to ${channelName} on \`${time}\`:\n\`\`\`${messageToSend}\`\`\``).catch(error => { console.error(`Error in 'announcements' command: ${error}`); });
+								return message.channel.send(`Canceled **Announcement #${id}** to ${channelName} on \`${time}\`:\n\`\`\`${messageToSend}\`\`\``)
+									.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 							} else {
-								return message.channel.send(`No timeout was set for Announcement #${id}`).catch(error => { console.error(`Error in 'cancelannouncement' command: ${error}`); });
+								return message.channel.send(`No timeout was set for Announcement #${id}`)
+									.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 							}
 						}
 					}
-					message.channel.send(`No announcement with id '${id}' found`).catch(error => { console.error(`Error in 'cancelannouncement' command: ${error}`); });
+					message.channel.send(`No announcement with id '${id}' found`)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				} else {
-					message.reply('no announcement data was found!').catch(error => { console.error(`Error in 'cancelannouncement' command: ${error}`); });
+					message.reply('no announcement data was found!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 			},
 		},
@@ -220,31 +237,85 @@ module.exports = {
 			help: 'Type `${this.prefix}${this.command} [userId] [message]`',
 			execute(message, args, client, props) {
 				if (args.length < 2) {
-					return message.reply(`correct usage is \`${props.prefix}${props.command} [userId] [message]\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [userId] [message]\``)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 				const userId = args[0];
 				const msg = Utilities.combineArgs(args.slice(1));
 				if (msg == null) {
-					return message.reply('you need to provide me with something to say!').catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+					return message.reply('you need to provide me with something to say!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 				}
 				client.users.fetch(userId).then(user => {
 					if (user.dmChannel == null) {
 						user.createDM().then(dm => dm.send(msg).then(() => {
-							message.channel.send(`Sent a Direct Message to \`${user.tag}\`:\n\`\`\`${msg}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+							message.channel.send(`Sent a Direct Message to \`${user.tag}\`:\n\`\`\`${msg}\`\`\``)
+								.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 						}))
 							.catch(err => {
-								message.channel.send(`Couldn't send a Direct Message to \`${user.tag}\`:\n\`\`\`${err}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+								message.channel.send(`Couldn't send a Direct Message to \`${user.tag}\`:\n\`\`\`${err}\`\`\``)
+									.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 							});
 					} else {
 						user.dmChannel.send(msg)
 							.then(() => {
-								message.channel.send(`Sent a Direct Message to \`${user.tag}\`:\n\`\`\`${msg}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+								message.channel.send(`Sent a Direct Message to \`${user.tag}\`:\n\`\`\`${msg}\`\`\``)
+									.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 							})
-							.catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 					}
 				})
 					.catch((err) => {
-						message.channel.send(`Error finding user \`${userId}\`:\n\`\`\`${err}\`\`\``).catch(error => { console.error(`Error with 'senddm' command: ${error}`); });
+						message.channel.send(`Error finding user \`${userId}\`:\n\`\`\`${err}\`\`\``)
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+					});
+			},
+		},
+		{
+			name: 'edit',
+			description: 'Edits one of the bot\'s messages',
+			help: 'Type `${this.prefix}${this.command} [channelId] [messageId] [newMessage]`',
+			execute(message, args, client, props) {
+				if (args.length < 3) {
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [channelId] [messageId] [newMessage]\``)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+				}
+				const channelId = args[0];
+				const messageId = args[1];
+				const msg = Utilities.combineArgs(args.slice(2));
+				client.channels.fetch(channelId)
+					.then(channel => {
+						if (!Object.prototype.hasOwnProperty.call(channel, 'messages')) {
+							return message.reply(`channel \`${channelId}\` is not text-based!`)
+								.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+						}
+						channel.messages.fetch(messageId)
+							.then(newMessage => {
+								newMessage.edit(msg).catch(error => Utilities.handleCommandError(client, message, props.command, error));
+								message.delete();
+							})
+							.catch(error => {
+								if (error == 'DiscordAPIError: Unknown Message') {
+									return message.reply(`couldn't find message \`${messageId}\`!`)
+										.catch(err => Utilities.handleCommandError(client, message, props.command, err));
+								} else if (/DiscordAPIError: Invalid Form Body\nmessage_id: Value ".+?" is not snowflake./.test(error)) {
+									return message.reply(`\`${messageId}\` is not a valid message id snowflake!`)
+										.catch(err => Utilities.handleCommandError(client, message, props.command, err));
+								} else {
+									Utilities.handleCommandError(client, message, props.command, error);
+								}
+							});
+					})
+					.catch(error => {
+						if (error == 'DiscordAPIError: Unknown Channel') {
+							return message.reply(`couldn't find channel \`${channelId}\`!`)
+								.catch(err => Utilities.handleCommandError(client, message, props.command, err));
+						} else if (/DiscordAPIError: Invalid Form Body\nchannel_id: Value ".+?" is not snowflake./.test(error)) {
+							return message.reply(`\`${channelId}\` is not a valid channel id snowflake!`)
+								.catch(err => Utilities.handleCommandError(client, message, props.command, err));
+						} else {
+							Utilities.handleCommandError(client, message, props.command, error);
+						}
 					});
 			},
 		},
@@ -252,8 +323,8 @@ module.exports = {
 			name: 'test',
 			description: 'Test command',
 			help: 'Type `${this.prefix}${this.command}`',
-			execute(message) {
-				message.channel.send('test').catch(error => { console.error(`Error with 'test' command: ${error}`); });
+			execute(message, args, client, props) {
+				message.channel.send('test').catch(err => Utilities.handleCommandError(client, message, props.command, err));
 			},
 		},
 	],

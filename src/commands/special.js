@@ -8,7 +8,7 @@ module.exports = {
 			name: 'emojiusage',
 			description: 'Shows how many times each custom emoji was used to react to a message in this server',
 			help: 'Type `${this.prefix}${this.command}` to show this month\'s data or `${this.prefix}${this.command} last` for last month\'s data',
-			execute(message, args, client) {
+			execute(message, args, client, props) {
 				let storageName, month;
 				if (args.length == 1 && args[0].toLowerCase() == 'last') {
 					storageName = 'LAST_MONTH_REACTIONS';
@@ -23,7 +23,8 @@ module.exports = {
 					const keys = storage.keys();
 					if (keys.length == 0) {
 						output.push('No data available for this month.');
-						message.channel.send(output).catch(error => { console.error(`Error in 'emojiusage' command: ${error}`); });
+						message.channel.send(output)
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 					} else {
 						client.guilds.fetch(client.bot.config.mainServer)
 							.then(guild => {
@@ -53,11 +54,11 @@ module.exports = {
 										out.push(temp.join(' | '));
 									}
 									message.channel.send(out)
-										.catch(error => { console.error(`Error in 'emojiusage' command: ${error}`); });
+										.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 									out = [];
 								}
 							})
-							.catch(error => { console.error(`Error fetching main server in 'emojiusage' command: ${error}`); });
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 					}
 				}
 			},
@@ -67,12 +68,13 @@ module.exports = {
 			description: 'Sets the usage count of a custom emoji shown by emojiusage',
 			help: 'Type `${this.prefix}${this.command} [emojis] [count]` to set the usage of an emoji',
 			permissions: 'MANAGE_EMOJIS',
-			execute(message, args, client) {
+			execute(message, args, client, props) {
 				if (Utilities.isMainServer(client, message.guild.id) && client.user.id != message.author.id && client.data.has('CURRENT_MONTH_REACTIONS')) {
 					const emojiIds = Utilities.getEmojiIds(args[0]);
 					const count = parseInt(args[1]);
 					if (isNaN(count)) {
-						message.channel.send(`\`${args[1]}\` is not a number.`);
+						message.channel.send(`\`${args[1]}\` is not a number.`)
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 					}
 					if (emojiIds.length > 0) {
 						const storage = client.data.get('CURRENT_MONTH_REACTIONS');
