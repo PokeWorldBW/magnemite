@@ -132,7 +132,7 @@ module.exports = {
 					}
 				}
 
-				message.channel.send(`Announce to \`${channelToSend.guild}\`#\`${channelToSend.name}\` at \`${time.format('dddd MM/DD/YYYY hh:mm [[UTC]]')}\`:\n\`\`\`\n${messageToSend}\n\`\`\``)
+				message.channel.send(`Announce to \`${channelToSend.guild}\`#\`${channelToSend.name}\` at \`${time.format('dddd MM/DD/YYYY HH:mm [[UTC]]')}\`:\n\`\`\`\n${messageToSend}\n\`\`\``)
 					.catch(error => { console.error(`Error in 'announce' command: ${error}`); });
 			},
 		},
