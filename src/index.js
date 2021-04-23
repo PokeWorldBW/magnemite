@@ -271,7 +271,7 @@ client.on('message', message => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
+				.catch(error => { Utilities.handleError(client, 'sending message in \'message\' event listener', error); });
 		}
 	}
 });
@@ -297,7 +297,7 @@ client.on('messageReactionAdd', messageReaction => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
+				.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionAdd\' event listener', error); });
 		}
 	}
 });
@@ -323,7 +323,7 @@ client.on('messageReactionRemove', messageReaction => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
+				.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionRemove\' event listener', error); });
 		}
 	}
 });
@@ -351,7 +351,7 @@ client.on('messageDelete', message => {
 		const response = listener(message);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
+				.catch(error => { Utilities.handleError(client, 'sending message in \'messageDelete\' event listener', error); });
 		}
 	}
 });
@@ -401,7 +401,7 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 		const response = listener(oldMessage, newMessage);
 		if (response != null) {
 			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, `sending message in '${listener.event}' event listener`, error); });
+				.catch(error => { Utilities.handleError(client, 'sending message in \'messageUpdate\' event listener', error); });
 		}
 	}
 });
