@@ -204,7 +204,9 @@ client.once('ready', () => {
 
 client.on('message', message => {
 	// Add to reaction tracking data if the message is from the main server
-	if (Utilities.isMainServer(client, message.guild.id) && client.user.id != message.author.id && client.data.has('CURRENT_MONTH_REACTIONS')) {
+	if (client.user.id != message.author.id
+			&& Utilities.isMainServer(client, message.guild)
+			&& client.data.has('CURRENT_MONTH_REACTIONS')) {
 		const emojiIds = Utilities.getEmojiIds(message.content);
 		if (emojiIds.length > 0) {
 			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
@@ -239,7 +241,7 @@ client.on('message', message => {
 				if (pluginName == 'owner' && !Utilities.isOwner(client, message.author.id)) {
 					return;
 				}
-				if (pluginName == 'special' && !Utilities.isMainServer(client, message.guild.id)) {
+				if (pluginName == 'special' && !Utilities.isMainServer(client, message.guild)) {
 					return;
 				}
 				if (commandName.permissions) {
@@ -270,8 +272,21 @@ client.on('message', message => {
 		const listener = client.eventListeners.get('message');
 		const response = listener(message);
 		if (response != null) {
-			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, 'sending message in \'message\' event listener', error); });
+			if (typeof response == 'string') {
+				client.channels.cache.get(config.logChannel).send(response)
+					.catch(error => { Utilities.handleError(client, 'sending message in \'message\' event listener', error); });
+			} else if (Array.isArray(response)) {
+				const joinedResponses = response.join('\n');
+				if (joinedResponses.length < 2000) {
+					client.channels.cache.get(config.logChannel).send(joinedResponses)
+						.catch(error => { Utilities.handleError(client, 'sending message in \'message\' event listener', error); });
+				} else {
+					for (let i = 0; i < response.length; i++) {
+						client.channels.cache.get(config.logChannel).send(response[i])
+							.catch(error => { Utilities.handleError(client, 'sending message in \'message\' event listener', error); });
+					}
+				}
+			}
 		}
 	}
 });
@@ -279,7 +294,7 @@ client.on('message', message => {
 client.on('messageReactionAdd', messageReaction => {
 	const { emoji, message } = messageReaction;
 	// Only track custom emojis which shouldn't have a null id
-	if (Utilities.isMainServer(client, message.guild.id) && emoji.id != null) {
+	if (Utilities.isMainServer(client, message.guild) && emoji.id != null) {
 		if (client.data.has('CURRENT_MONTH_REACTIONS')) {
 			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
 			const compressedId = Utilities.compress(emoji.id);
@@ -296,8 +311,21 @@ client.on('messageReactionAdd', messageReaction => {
 		const listener = client.eventListeners.get('messageReactionAdd');
 		const response = listener(message);
 		if (response != null) {
-			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionAdd\' event listener', error); });
+			if (typeof response == 'string') {
+				client.channels.cache.get(config.logChannel).send(response)
+					.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionAdd\' event listener', error); });
+			} else if (Array.isArray(response)) {
+				const joinedResponses = response.join('\n');
+				if (joinedResponses.length < 2000) {
+					client.channels.cache.get(config.logChannel).send(joinedResponses)
+						.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionAdd\' event listener', error); });
+				} else {
+					for (let i = 0; i < response.length; i++) {
+						client.channels.cache.get(config.logChannel).send(response[i])
+							.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionAdd\' event listener', error); });
+					}
+				}
+			}
 		}
 	}
 });
@@ -305,7 +333,7 @@ client.on('messageReactionAdd', messageReaction => {
 client.on('messageReactionRemove', messageReaction => {
 	const { emoji, message } = messageReaction;
 	// Only track custom emojis which shouldn't have a null id
-	if (Utilities.isMainServer(client, message.guild.id) && emoji.id != null) {
+	if (Utilities.isMainServer(client, message.guild) && emoji.id != null) {
 		if (client.data.has('CURRENT_MONTH_REACTIONS')) {
 			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
 			const compressedId = Utilities.compress(emoji.id);
@@ -322,15 +350,30 @@ client.on('messageReactionRemove', messageReaction => {
 		const listener = client.eventListeners.get('messageReactionRemove');
 		const response = listener(message);
 		if (response != null) {
-			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionRemove\' event listener', error); });
+			if (typeof response == 'string') {
+				client.channels.cache.get(config.logChannel).send(response)
+					.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionRemove\' event listener', error); });
+			} else if (Array.isArray(response)) {
+				const joinedResponses = response.join('\n');
+				if (joinedResponses.length < 2000) {
+					client.channels.cache.get(config.logChannel).send(joinedResponses)
+						.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionRemove\' event listener', error); });
+				} else {
+					for (let i = 0; i < response.length; i++) {
+						client.channels.cache.get(config.logChannel).send(response[i])
+							.catch(error => { Utilities.handleError(client, 'sending message in \'messageReactionRemove\' event listener', error); });
+					}
+				}
+			}
 		}
 	}
 });
 
 client.on('messageDelete', message => {
 	// Subtract from reaction tracking data if the message is from the main server
-	if (Utilities.isMainServer(client, message.guild.id) && client.user.id != message.author.id && client.data.has('CURRENT_MONTH_REACTIONS')) {
+	if (Utilities.isMainServer(client, message.guild)
+		&& client.user.id != message.author.id
+		&& client.data.has('CURRENT_MONTH_REACTIONS')) {
 		const emojiIds = Utilities.getEmojiIds(message.content);
 		if (emojiIds.length > 0) {
 			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
@@ -350,15 +393,28 @@ client.on('messageDelete', message => {
 		const listener = client.eventListeners.get('messageDelete');
 		const response = listener(message);
 		if (response != null) {
-			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, 'sending message in \'messageDelete\' event listener', error); });
+			if (typeof response == 'string') {
+				client.channels.cache.get(config.logChannel).send(response)
+					.catch(error => { Utilities.handleError(client, 'sending message in \'messageDelete\' event listener', error); });
+			} else if (Array.isArray(response)) {
+				const joinedResponses = response.join('\n');
+				if (joinedResponses.length < 2000) {
+					client.channels.cache.get(config.logChannel).send(joinedResponses)
+						.catch(error => { Utilities.handleError(client, 'sending message in \'messageDelete\' event listener', error); });
+				} else {
+					for (let i = 0; i < response.length; i++) {
+						client.channels.cache.get(config.logChannel).send(response[i])
+							.catch(error => { Utilities.handleError(client, 'sending message in \'messageDelete\' event listener', error); });
+					}
+				}
+			}
 		}
 	}
 });
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
 	// Add to reaction tracking data if the message is from the main server
-	if (Utilities.isMainServer(client, oldMessage.guild.id)
+	if (Utilities.isMainServer(client, oldMessage.guild)
 		&& client.user.id != oldMessage.author.id
 		&& oldMessage.content != newMessage.content
 		&& client.data.has('CURRENT_MONTH_REACTIONS')) {
@@ -400,8 +456,21 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 		const listener = client.eventListeners.get('messageUpdate');
 		const response = listener(oldMessage, newMessage);
 		if (response != null) {
-			client.channels.cache.get(config.logChannel).send(response)
-				.catch(error => { Utilities.handleError(client, 'sending message in \'messageUpdate\' event listener', error); });
+			if (typeof response == 'string') {
+				client.channels.cache.get(config.logChannel).send(response)
+					.catch(error => { Utilities.handleError(client, 'sending message in \'messageUpdate\' event listener', error); });
+			} else if (Array.isArray(response)) {
+				const joinedResponses = response.join('\n');
+				if (joinedResponses.length < 2000) {
+					client.channels.cache.get(config.logChannel).send(joinedResponses)
+						.catch(error => { Utilities.handleError(client, 'sending message in \'messageUpdate\' event listener', error); });
+				} else {
+					for (let i = 0; i < response.length; i++) {
+						client.channels.cache.get(config.logChannel).send(response[i])
+							.catch(error => { Utilities.handleError(client, 'sending message in \'messageUpdate\' event listener', error); });
+					}
+				}
+			}
 		}
 	}
 });

@@ -69,7 +69,7 @@ module.exports = {
 			help: 'Type `${this.prefix}${this.command} [emojis] [count]` to set the usage of an emoji',
 			permissions: 'MANAGE_EMOJIS',
 			execute(message, args, client, props) {
-				if (Utilities.isMainServer(client, message.guild.id) && client.user.id != message.author.id && client.data.has('CURRENT_MONTH_REACTIONS')) {
+				if (Utilities.isMainServer(client, message.guild) && client.user.id != message.author.id && client.data.has('CURRENT_MONTH_REACTIONS')) {
 					const emojiIds = Utilities.getEmojiIds(args[0]);
 					const count = parseInt(args[1]);
 					if (isNaN(count)) {

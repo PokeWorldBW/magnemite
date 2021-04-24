@@ -184,8 +184,8 @@ module.exports = {
 		return client.bot.config.ownerId == userId;
 	},
 	// Returns whether the server (guild) is the main server
-	isMainServer(client, guildId) {
-		return client.bot.config.mainServer == guildId;
+	isMainServer(client, guild) {
+		return guild != undefined && client.bot.config.mainServer == guild.id;
 	},
 	// Sends a message to a channel
 	sendMessage(channel, message, client) {

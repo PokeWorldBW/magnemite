@@ -285,7 +285,7 @@ module.exports = {
 				const msg = Utilities.combineArgs(args.slice(2));
 				client.channels.fetch(channelId)
 					.then(channel => {
-						if (!Object.prototype.hasOwnProperty.call(channel, 'messages')) {
+						if (!channel.isText()) {
 							return message.reply(`channel \`${channelId}\` is not text-based!`)
 								.catch(error => Utilities.handleCommandError(client, message, props.command, error));
 						}

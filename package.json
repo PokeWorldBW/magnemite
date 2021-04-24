@@ -17,11 +17,11 @@
   },
   "homepage": "https://github.com/justinc646/magnemite#readme",
   "dependencies": {
-    "color-hash": "^1.0.3",
-    "discord.js": "^12.3.1",
-    "moment-timezone": "^0.5.32"
+    "color-hash": "^1.1.1",
+    "discord.js": "^12.5.3",
+    "moment-timezone": "^0.5.33"
   },
   "devDependencies": {
-    "eslint": "^7.11.0"
+    "eslint": "^7.25.0"
   }
 }
