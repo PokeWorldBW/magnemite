@@ -101,9 +101,9 @@ function runDailyChecks() {
 	const color = colorHash.hex(time.format('MM DD YYYY'));
 	changeRandomColorRole(color, config.mainServer, config.randomColorRole);
 	if (time.date() == 1) {
-		if (client.data.has('CURRENT_MONTH_REACTIONS') && client.data.has('LAST_MONTH_REACTIONS')) {
-			const currentMonthReactions = client.data.get('CURRENT_MONTH_REACTIONS');
-			const lastMonthReactions = client.data.get('LAST_MONTH_REACTIONS');
+		if (client.data.has('CURRENT MONTH REACTIONS') && client.data.has('LAST MONTH REACTIONS')) {
+			const currentMonthReactions = client.data.get('CURRENT MONTH REACTIONS');
+			const lastMonthReactions = client.data.get('LAST MONTH REACTIONS');
 			lastMonthReactions.setRawData(currentMonthReactions.getRawData());
 			currentMonthReactions.clear();
 			if (client.commands.has('emojiusage')) {
@@ -206,10 +206,10 @@ client.on('message', message => {
 	// Add to reaction tracking data if the message is from the main server
 	if (client.user.id != message.author.id
 			&& Utilities.isMainServer(client, message.guild)
-			&& client.data.has('CURRENT_MONTH_REACTIONS')) {
+			&& client.data.has('CURRENT MONTH REACTIONS')) {
 		const emojiIds = Utilities.getEmojiIds(message.content);
 		if (emojiIds.length > 0) {
-			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
+			const storage = client.data.get('CURRENT MONTH REACTIONS');
 			emojiIds.forEach(emojiId => {
 				const compressedId = Utilities.compress(emojiId);
 				if (storage.has(compressedId)) {
@@ -254,7 +254,7 @@ client.on('message', message => {
 				client.plugins.get(pluginName).get(commandName).execute(message, args, client, props);
 			} catch (error) {
 				Utilities.handleCommandError(client, message, commandName, error);
-				message.reply('there was an error trying to execute that command!').error(err => console.log(`Error sending command error reply: ${err}`));
+				message.reply('there was an error trying to execute that command!').catch(err => console.log(`Error sending command error reply: ${err}`));
 			}
 		}
 	}
@@ -295,8 +295,8 @@ client.on('messageReactionAdd', messageReaction => {
 	const { emoji, message } = messageReaction;
 	// Only track custom emojis which shouldn't have a null id
 	if (Utilities.isMainServer(client, message.guild) && emoji.id != null) {
-		if (client.data.has('CURRENT_MONTH_REACTIONS')) {
-			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
+		if (client.data.has('CURRENT MONTH REACTIONS')) {
+			const storage = client.data.get('CURRENT MONTH REACTIONS');
 			const compressedId = Utilities.compress(emoji.id);
 			if (storage.has(compressedId)) {
 				const count = storage.get(compressedId);
@@ -334,8 +334,8 @@ client.on('messageReactionRemove', messageReaction => {
 	const { emoji, message } = messageReaction;
 	// Only track custom emojis which shouldn't have a null id
 	if (Utilities.isMainServer(client, message.guild) && emoji.id != null) {
-		if (client.data.has('CURRENT_MONTH_REACTIONS')) {
-			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
+		if (client.data.has('CURRENT MONTH REACTIONS')) {
+			const storage = client.data.get('CURRENT MONTH REACTIONS');
 			const compressedId = Utilities.compress(emoji.id);
 			if (storage.has(compressedId)) {
 				const count = storage.get(compressedId);
@@ -373,10 +373,10 @@ client.on('messageDelete', message => {
 	// Subtract from reaction tracking data if the message is from the main server
 	if (Utilities.isMainServer(client, message.guild)
 		&& client.user.id != message.author.id
-		&& client.data.has('CURRENT_MONTH_REACTIONS')) {
+		&& client.data.has('CURRENT MONTH REACTIONS')) {
 		const emojiIds = Utilities.getEmojiIds(message.content);
 		if (emojiIds.length > 0) {
-			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
+			const storage = client.data.get('CURRENT MONTH REACTIONS');
 			emojiIds.forEach(emojiId => {
 				const compressedId = Utilities.compress(emojiId);
 				if (storage.has(compressedId)) {
@@ -417,11 +417,11 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 	if (Utilities.isMainServer(client, oldMessage.guild)
 		&& client.user.id != oldMessage.author.id
 		&& oldMessage.content != newMessage.content
-		&& client.data.has('CURRENT_MONTH_REACTIONS')) {
+		&& client.data.has('CURRENT MONTH REACTIONS')) {
 		const oldEmojiIds = Utilities.getEmojiIds(oldMessage.content);
 		const newEmojiIds = Utilities.getEmojiIds(newMessage.content);
 		if (oldEmojiIds.length > 0 || newEmojiIds.length > 0) {
-			const storage = client.data.get('CURRENT_MONTH_REACTIONS');
+			const storage = client.data.get('CURRENT MONTH REACTIONS');
 			let emojiId;
 			const newEmojiSet = new Set(newEmojiIds);
 			for (let i = 0; i < oldEmojiIds.length; i++) {

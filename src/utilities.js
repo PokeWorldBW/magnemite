@@ -33,7 +33,7 @@ class Storage {
 
 	async save() {
 		const json = JSON.stringify(this.data);
-		const record = `${this.name}:\n\`\`\`${json}\`\`\``;
+		const record = `${this.name}:\n\`\`\`${json}\n\`\`\``;
 		await this.line.edit(record);
 	}
 
@@ -76,7 +76,7 @@ module.exports = {
 	Storage,
 	// Creates a storage object if one hasn't already been created for the name
 	async buildStorage(client, channel, name) {
-		const record = `${name}:\n\`\`\`{}\`\`\``;
+		const record = `${name}:\n\`\`\`{}\n\`\`\``;
 		let message;
 		await channel.send(record).then(m => { message = m; })
 			.catch(error => { console.error(`Error in Utilities.buildStorage: ${error}`); });

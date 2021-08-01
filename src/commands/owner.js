@@ -320,6 +320,156 @@ module.exports = {
 			},
 		},
 		{
+			name: 'startvote',
+			description: 'Starts a vote',
+			help: 'Type `${this.prefix}${this.command} [choices] [channelId] [eligibleVoters]`',
+			execute(message, args, client, props) {
+				if (args.length < 1 || args.length > 3) {
+					return message.reply(`correct usage is \`${props.prefix}${props.command} [choices] [channelId] [eligibleVoters]\``)
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+				}
+
+				if (client.data.has('VOTES')) {
+					const voteData = client.data.get('VOTES');
+					if (voteData.has('options')) {
+						return message.reply(`a vote already exists, use \`${props.prefix}endvote\` to end it.`)
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+					} else {
+						const tempData = new Map();
+						const choices = args[0].split(',');
+						tempData.set('options', choices);
+						tempData.set('votes', {});
+
+						let channelId = null;
+						if (args.length >= 2) {
+							channelId = args[1];
+							if (!client.channels.cache.has(channelId)) {
+								return message.reply(`I am not in channel \`${channelId}\`!`)
+									.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+							} else {
+								tempData.set('channelId', channelId);
+							}
+						}
+
+						let eligibleVoters = null;
+						if (args.length == 3) {
+							eligibleVoters = args[2].split(',');
+							const voterMap = {};
+							let voter, index, id, name;
+							for (let i = 0; i < eligibleVoters.length; i++) {
+								voter = eligibleVoters[i];
+								index = voter.indexOf('=');
+								if (index == -1) {
+									return message.reply(`eligibleVoters is not formatted correctly. Expected a \`=\` in ${voter} to map an id to a name`)
+										.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+								} else {
+									id = voter.substring(0, index);
+									name = voter.slice(index + 1);
+									voterMap[id] = name;
+								}
+							}
+							tempData.set('voterMap', voterMap);
+						}
+
+						tempData.forEach((value, key) => voteData.add(key, value));
+
+						const output = [];
+						if (channelId != null) {
+							const channel = client.channels.cache.get(channelId);
+							output.push(`A vote was started in ${channel.guild}#${channel.name} with the following choices: \`${choices.join(', ')}\``);
+							if (eligibleVoters != null) {
+								const names = tempData.get('voterMap').values().join(', ');
+								output.push(`\nEligible Voters: ${names}`);
+							}
+						} else {
+							output.push(`A vote was started with the following choices: \`${choices.join(', ')}\``);
+						}
+
+						message.channel.send(output.join(''))
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+					}
+				} else {
+					message.reply('no vote data was found!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+				}
+			},
+		},
+		{
+			name: 'endvote',
+			description: 'Ends a vote',
+			help: 'Type `${this.prefix}${this.command}` [secret?]',
+			execute(message, args, client, props) {
+				if (client.data.has('VOTES')) {
+					const voteData = client.data.get('VOTES');
+					if (!voteData.has('options')) {
+						message.reply('there is no vote going on!')
+							.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+					} else {
+						let results = [];
+						if (args.length > 0 && args[0].toLowerCase() == 'secret') {
+							message.channel.send('The vote has ended.')
+								.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+						} else {
+							results.push('**VOTE RESULTS**');
+							const votes = voteData.get('votes');
+							if (Object.keys(votes).length == 0) {
+								results.push('*No votes were cast!*');
+							} else {
+								results.push('```');
+
+								const voteCount = new Map();
+								const options = voteData.get('options');
+								for (let i = 0; i < options.length; i++) {
+									voteCount.set(options[i], { count: 0, voters: [] });
+								}
+
+								let voterMap = null;
+								if (voteData.has('voterMap')) {
+									voterMap = voteData.get('voterMap');
+								}
+
+								let option, name;
+								for (const [key, value] of Object.entries(votes)) {
+									option = voteCount.get(value);
+									option.count++;
+									name = key;
+									if (Object.prototype.hasOwnProperty.call(voterMap, key)) {
+										name = voterMap[key];
+									}
+									option.voters.push(name);
+								}
+
+								options.map(opt => {
+									const voted = voteData.get(opt);
+									return { voted: opt, voteCount: voted.count, voters: voted.voters };
+								})
+									.filter(data => data.voteCount != 0)
+									.sort((a, b) => b.voteCount - a.voteCount)
+									.map(data => `${data.voted} (${data.voteCount}): ${data.voters.join(', ')}`);
+
+								results = results.concat(options);
+								results.push('```');
+							}
+							message.channel.send(results.join('\n'))
+								.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+						}
+						voteData.clear();
+					}
+				} else {
+					message.reply('no vote data was found!')
+						.catch(error => Utilities.handleCommandError(client, message, props.command, error));
+				}
+			},
+		},
+		{
+			name: 'removevote',
+			description: 'Removes a vote cast by someone',
+			help: 'Type `${this.prefix}${this.command}` [id]',
+			execute(message, args, client, props) {
+				message.channel.send('test').catch(err => Utilities.handleCommandError(client, message, props.command, err));
+			},
+		},
+		{
 			name: 'test',
 			description: 'Test command',
 			help: 'Type `${this.prefix}${this.command}`',
