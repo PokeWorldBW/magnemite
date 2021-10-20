@@ -218,9 +218,6 @@ client.on('message', message => {
 				} else {
 					storage.add(compressedId, 1);
 				}
-				const emoji = message.guild.emojis.cache.get(emojiId);
-				client.channels.cache.get(config.debugChannel).send(`Added 1 use of ${emoji.name} (count: ${storage.get(compressedId)},  compressed: ${compressedId}) in sent message https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`)
-					.catch(error => { Utilities.handleError(client, 'logging emoji used in sent message', error); });
 			});
 		}
 	}
@@ -307,8 +304,6 @@ client.on('messageReactionAdd', messageReaction => {
 			} else {
 				storage.add(compressedId, 1);
 			}
-			client.channels.cache.get(config.debugChannel).send(`Added 1 use of ${emoji.name} (count: ${storage.get(compressedId)},  compressed: ${compressedId}) for reaction added to message https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`)
-				.catch(error => { Utilities.handleError(client, 'logging emoji reaction add', error); });
 		}
 	}
 
@@ -348,8 +343,6 @@ client.on('messageReactionRemove', messageReaction => {
 					storage.add(compressedId, count - 1);
 				}
 			}
-			client.channels.cache.get(config.debugChannel).send(`Removed 1 use of ${emoji.name} (count: ${storage.get(compressedId)},  compressed: ${compressedId}) for reaction removed from message https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`)
-				.catch(error => { Utilities.handleError(client, 'logging emoji reaction remove', error); });
 		}
 	}
 
@@ -392,9 +385,6 @@ client.on('messageDelete', message => {
 						storage.add(compressedId, count - 1);
 					}
 				}
-				const emoji = message.guild.emojis.cache.get(emojiId);
-				client.channels.cache.get(config.debugChannel).send(`Removed 1 use of ${emoji.name} (count: ${storage.get(compressedId)},  compressed: ${compressedId}) in deleted message https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`)
-					.catch(error => { Utilities.handleError(client, 'logging emoji used in deleted message', error); });
 			});
 		}
 	}
@@ -444,9 +434,6 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 							storage.add(compressedId, count - 1);
 						}
 					}
-					const emoji = oldMessage.guild.emojis.cache.get(emojiId);
-					client.channels.cache.get(config.debugChannel).send(`Removed 1 use of ${emoji.name} (count: ${storage.get(compressedId)},  compressed: ${compressedId}) in edited message https://discord.com/channels/${oldMessage.guild.id}/${oldMessage.channel.id}/${oldMessage.id}`)
-						.catch(error => { Utilities.handleError(client, 'logging emoji removed in edited message', error); });
 				}
 			}
 			const oldEmojiSet = new Set(oldEmojiIds);
@@ -460,9 +447,6 @@ client.on('messageUpdate', (oldMessage, newMessage) => {
 					} else {
 						storage.add(compressedId, 1);
 					}
-					const emoji = oldMessage.guild.emojis.cache.get(emojiId);
-					client.channels.cache.get(config.debugChannel).send(`Added 1 use of ${emoji.name} (count: ${storage.get(compressedId)},  compressed: ${compressedId}) in edited message https://discord.com/channels/${oldMessage.guild.id}/${oldMessage.channel.id}/${oldMessage.id}`)
-						.catch(error => { Utilities.handleError(client, 'logging emoji added in edited message', error); });
 				}
 			}
 		}
