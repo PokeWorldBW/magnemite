@@ -6,6 +6,7 @@ class Storage {
 	constructor(client, name, message) {
 		this.name = name;
 		this.line = message;
+		this.client = client;
 
 		if (message.author.id != client.user.id) {
 			return;
@@ -34,7 +35,7 @@ class Storage {
 	async save() {
 		const json = JSON.stringify(this.data);
 		const record = `${this.name}:\n\`\`\`${json}\n\`\`\``;
-		await this.line.edit(record);
+		await this.line.edit(record).catch(error => { module.exports.handleError(this.client, `saving Storage for ${this.name}`, error); });
 	}
 
 	add(key, value) {
@@ -79,7 +80,7 @@ module.exports = {
 		const record = `${name}:\n\`\`\`{}\n\`\`\``;
 		let message;
 		await channel.send(record).then(m => { message = m; })
-			.catch(error => { console.error(`Error in Utilities.buildStorage: ${error}`); });
+			.catch(error => { this.handleError(client, 'Utilities.buildStorage', error); });
 		return new Storage(client, name, message);
 	},
 	// Overwrite all previous data
