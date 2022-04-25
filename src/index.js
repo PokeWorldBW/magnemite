@@ -203,6 +203,9 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
+	if (message.channel.isVoice()) {
+		return;
+	}
 	// Add to reaction tracking data if the message is from the main server
 	if (client.user.id != message.author.id
 			&& Utilities.isMainServer(client, message.guild)
@@ -293,6 +296,9 @@ client.on('message', message => {
 
 client.on('messageReactionAdd', messageReaction => {
 	const { emoji, message } = messageReaction;
+	if (message.channel.isVoice()) {
+		return;
+	}
 	// Only track custom emojis which shouldn't have a null id
 	if (Utilities.isMainServer(client, message.guild) && emoji.id != null) {
 		if (client.data.has('CURRENT MONTH REACTIONS')) {
@@ -332,6 +338,9 @@ client.on('messageReactionAdd', messageReaction => {
 
 client.on('messageReactionRemove', messageReaction => {
 	const { emoji, message } = messageReaction;
+	if (message.channel.isVoice()) {
+		return;
+	}
 	// Only track custom emojis which shouldn't have a null id
 	if (Utilities.isMainServer(client, message.guild) && emoji.id != null) {
 		if (client.data.has('CURRENT MONTH REACTIONS')) {
@@ -370,6 +379,9 @@ client.on('messageReactionRemove', messageReaction => {
 });
 
 client.on('messageDelete', message => {
+	if (message.channel.isVoice()) {
+		return;
+	}
 	// Subtract from reaction tracking data if the message is from the main server
 	if (Utilities.isMainServer(client, message.guild)
 		&& client.user.id != message.author.id
@@ -413,6 +425,9 @@ client.on('messageDelete', message => {
 });
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
+	if (message.channel.isVoice()) {
+		return;
+	}
 	// Add to reaction tracking data if the message is from the main server
 	if (Utilities.isMainServer(client, oldMessage.guild)
 		&& client.user.id != oldMessage.author.id
