@@ -203,7 +203,7 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-	if (message.channel.isVoice()) {
+	if (message.channel.type == 'GUILD_VOICE') {
 		return;
 	}
 	// Add to reaction tracking data if the message is from the main server
@@ -296,7 +296,7 @@ client.on('message', message => {
 
 client.on('messageReactionAdd', messageReaction => {
 	const { emoji, message } = messageReaction;
-	if (message.channel.isVoice()) {
+	if (message.channel.type == 'GUILD_VOICE') {
 		return;
 	}
 	// Only track custom emojis which shouldn't have a null id
@@ -338,7 +338,7 @@ client.on('messageReactionAdd', messageReaction => {
 
 client.on('messageReactionRemove', messageReaction => {
 	const { emoji, message } = messageReaction;
-	if (message.channel.isVoice()) {
+	if (message.channel.type == 'GUILD_VOICE') {
 		return;
 	}
 	// Only track custom emojis which shouldn't have a null id
@@ -379,7 +379,7 @@ client.on('messageReactionRemove', messageReaction => {
 });
 
 client.on('messageDelete', message => {
-	if (message.channel.isVoice()) {
+	if (message.channel.type == 'GUILD_VOICE') {
 		return;
 	}
 	// Subtract from reaction tracking data if the message is from the main server
@@ -425,7 +425,7 @@ client.on('messageDelete', message => {
 });
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
-	if (message.channel.isVoice()) {
+	if (oldMessage.channel.type == 'GUILD_VOICE') {
 		return;
 	}
 	// Add to reaction tracking data if the message is from the main server
